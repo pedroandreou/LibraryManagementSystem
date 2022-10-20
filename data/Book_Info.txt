@@ -1,0 +1,21 @@
+ID,Genre,Title,Author,Purchase Price £,Purchase Date
+1,Romance,It Ends with Us,Colleen Hoover,10,07/01/2011
+2,Mystery,Gone Girl,Gillian Flynn,20,07/24/2013
+3,Sci-fi,Dune,Frank Herbert,10,07/24/2013
+4,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
+5,Biography,The Autobiography of Malcolm X,Alex Haley and Malcolm X,10,07/20/2010
+6,Romance,The Notebook,Nicholas Sparks,25,12/01/2015
+7,Mystery,Bluebird, Bluebird,Attica Locke,5,07/24/2013
+8,Sci-fi,The Three-Body Problem,Liu Cixin,10,07/24/2013
+9,Thriller,The Silence of the Lambs,Thomas Harris,25,12/01/2015
+10,Biography,Alexander Hamilton,Ron Chernow,20,09/27/2013
+11,Romance,Me Before You,Jojo Moyes,25,05/14/2014
+12,Mystery,The Girl with the Dragon Tattoo,Stieg Larsson,15,04/01/2016
+13,Sci-fi,Snow Crash,Neal Stephenson,10,04/01/2016
+14,Thriller,The Girl on the Train,Paula Hawkins,10,07/24/2013
+15,Biography,The Code Breaker,Walter Isaacson,20,12/01/2015
+16,Romance,Outlander,Diana Gabaldon,20,07/24/2013
+17,Mystery,Da Vinci Code,Dan Brown,20,12/01/2015
+18,Sci-fi,Foundation,Isaac Asimov,15,07/24/2013
+19,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
+20,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013

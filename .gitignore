@@ -1,0 +1,6 @@
+# Venv, direnv
+.env
+.envrc
+
+# IDEs
+.vscode
