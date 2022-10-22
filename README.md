@@ -41,7 +41,7 @@ make update-requirements-txt
 
 ## 🛠 Initialization & Setup
 #### Clone the repository
-    git clone https://github.com/pedroandreou/BookLibrarySystem.git
+    git clone https://github.com/pedroandreou/LIbraryManagementSystem.git
 
 ## Author
 Petros Andreou

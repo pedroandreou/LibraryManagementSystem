@@ -4,3 +4,6 @@
 
 # IDEs
 .vscode
+
+# Python
+**/__pycache__
