@@ -23,11 +23,12 @@ def main():
         ]
         create_loan_reservation_history = [
             "loan_reservation_history",
-            "book_id integer PRIMARY KEY",
+            "book_id integer NOT NULL",
             "reservation_date date",
             "checkout_date date",
             "return_date date",
-            "member_id integer",
+            "member_id integer NOT NULL",
+            "PRIMARY KEY (book_id, member_id)",
         ]
 
         create_tables = [create_book_info, create_loan_reservation_history]
@@ -46,7 +47,7 @@ def main():
 
         fill_tables = [fill_book_info, fill_loan_reservation_history]
         for table in fill_tables:
-            # capitalize the first letter and every letter after an underscore => find txt files
+            # capitalize the first letter and every letter after an underscore => create txt file names
             file_name = "_".join(elem.capitalize() for elem in table[0].split("_"))
             file_path = f"{data_dir_path}{file_name}.txt"
             d.fill_table(conn, table, file_path)

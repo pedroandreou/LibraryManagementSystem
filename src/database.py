@@ -56,8 +56,7 @@ def fill_table(conn, table, file_path=None):
 
         question_marks_str += "?, "
 
-    # https://stackoverflow.com/questions/35415469/sqlite3-unique-constraint-failed-error
-    insert_with_param = f""" INSERT OR IGNORE INTO {title}
+    insert_with_param = f""" INSERT INTO {title}
                         ({cols})
                         VALUES ({question_marks_str}); """
 
