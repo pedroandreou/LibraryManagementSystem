@@ -1,12 +1,14 @@
 import os
+from tkinter import Tk
 import database as d
+import gui
 
 
 def main():
-    current_path = os.path.dirname(__file__)
-    data_dir_path = os.path.join(current_path, "../data/")
+    repo_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    data_dir_path = os.path.join(repo_path, "data/")
 
-    ### database ###
+    ## database ###
     db_path = data_dir_path + "library.db"
     conn = d.create_connection(db_path)
 
@@ -19,7 +21,7 @@ def main():
             "title text NOT NULL",
             "author text NOT NULL",
             "purchase_price_£ integer NOT NULL",
-            "purchase_data date NOT NULL",
+            "purchase_date date NOT NULL",
         ]
         create_loan_reservation_history = [
             "loan_reservation_history",
@@ -38,7 +40,7 @@ def main():
         # insert data to tables
         fill_book_info = [
             "book_info",
-            "id, genre, title, author, purchase_price_£, purchase_data",
+            "id, genre, title, author, purchase_price_£, purchase_date",
         ]
         fill_loan_reservation_history = [
             "loan_reservation_history",
@@ -56,6 +58,13 @@ def main():
         print("Error! cannot create the database connection")
 
     conn.close()
+
+    ### gui ###
+    # img_path = data_dir_path + 'gui_bg.png'
+
+    root = Tk()
+    gui.app(root)
+    root.mainloop()
 
 
 if __name__ == "__main__":
