@@ -14,9 +14,22 @@ def create_connection(db_path):
     return conn
 
 
-def create_table(conn, table):
-    c = conn.cursor()
+def execute_query(conn, query=None, data=None):
 
+    try:
+        c = conn.cursor()
+
+        if query is not None and data is not None:
+            c.execute(query, data)
+        else:
+            c.execute(query)
+    except sqlite3.Error as error:
+        print(error)
+    finally:
+        conn.commit()
+
+
+def create_table(conn, table):
     title = table[0]
     table = table[1:]
     table_len = len(table)
@@ -34,12 +47,13 @@ def create_table(conn, table):
                                     {all_cols}
                                 ); """
 
-    try:
-        c.execute(create_table)
-    except sqlite3.Error as error:
-        print(error)
+    execute_query(conn, create_table)
 
-    conn.commit()
+
+def drop_table(conn, table_name):
+    drop_table = f"DROP TABLE {table_name};"
+
+    execute_query(conn, drop_table)
 
 
 def insert_data_to_table(conn, table, data):
@@ -61,12 +75,7 @@ def insert_data_to_table(conn, table, data):
                         ({cols})
                         VALUES ({question_marks_str}); """
 
-    c = conn.cursor()
-
-    c.execute(insert_with_param, data)
-    conn.commit()
-
-    c.close()
+    execute_query(conn, insert_with_param, data)
 
 
 def init_db(conn, table, file_path=None):

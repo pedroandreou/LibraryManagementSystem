@@ -13,7 +13,7 @@ def main():
     conn = d.create_connection(db_path)
 
     if conn is not None:
-        # create tables
+        # create initial tables
         create_book_info = [
             "book_info",
             "id integer PRIMARY KEY",
@@ -37,7 +37,7 @@ def main():
         for table in create_tables:
             d.create_table(conn, table)
 
-        # insert data to tables
+        # insert initial data to tables
         fill_book_info = [
             "book_info",
             "id, genre, title, author, purchase_price_£, purchase_date",
