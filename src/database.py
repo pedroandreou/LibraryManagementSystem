@@ -42,15 +42,16 @@ def create_table(conn, table):
     conn.commit()
 
 
-def fill_table(conn, table, file_path=None):
+def insert_data_to_table(conn, table, data):
     title = table[0]
     cols = table[1]
     cols_tuple = cols.split(", ")
+    cols_tuple_len = len(cols_tuple)
 
     # create a string of '?' based on the amount of cols that the table has
     question_marks_str = ""
     for counter, _ in enumerate(cols_tuple):
-        if len(cols_tuple) == counter + 1:
+        if cols_tuple_len == counter + 1:
             question_marks_str += "?"
             break
 
@@ -61,6 +62,15 @@ def fill_table(conn, table, file_path=None):
                         VALUES ({question_marks_str}); """
 
     c = conn.cursor()
+
+    c.execute(insert_with_param, data)
+    conn.commit()
+
+    c.close()
+
+
+def init_db(conn, table, file_path=None):
+
     with open(file_path, "r") as f:
         for line in f:
 
@@ -70,7 +80,4 @@ def fill_table(conn, table, file_path=None):
 
             line_tuple = tuple(line.split(","))
 
-            c.execute(insert_with_param, line_tuple)
-
-    conn.commit()
-    c.close()
+            insert_data_to_table(conn, table, line_tuple)

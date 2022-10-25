@@ -49,10 +49,10 @@ def main():
 
         fill_tables = [fill_book_info, fill_loan_reservation_history]
         for table in fill_tables:
-            # capitalize the first letter and every letter after an underscore => create txt file names
+            # capitalize the first letter and every letter after an underscore => txt file name
             file_name = "_".join(elem.capitalize() for elem in table[0].split("_"))
             file_path = f"{data_dir_path}{file_name}.txt"
-            d.fill_table(conn, table, file_path)
+            d.init_db(conn, table, file_path)
 
     else:
         print("Error! cannot create the database connection")
