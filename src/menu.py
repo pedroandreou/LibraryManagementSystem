@@ -25,13 +25,13 @@ def main():
         ]
         create_loan_reservation_history = [
             "Loan_Reservation_History",
+            "TransactionId integer PRIMARY KEY",
             "BookId integer NOT NULL",
             "ReservationDate DATE",
             "CheckoutDate DATE",
             "ReturnDate DATE",
             "MemberId INTEGER NOT NULL",
-            "PRIMARY KEY (BookId, MemberId)",
-            "FOREIGN KEY (BookId) REFERENCES BookInfo(BookId)",
+            "FOREIGN KEY (BookId) REFERENCES Book_Info(BookId)",
         ]
 
         create_tables = [create_book_info, create_loan_reservation_history]
@@ -45,14 +45,14 @@ def main():
         ]
         fill_loan_reservation_history = [
             "Loan_Reservation_History",
-            "BookId, ReservationDate, CheckoutDate, ReturnDate, MemberId",
+            "TransactionId, BookId, ReservationDate, CheckoutDate, ReturnDate, MemberId",
         ]
 
         fill_tables = [fill_book_info, fill_loan_reservation_history]
         for table in fill_tables:
             table_name = table[0]
             file_path = f"{data_dir_path}{table_name}.txt"
-            d.init_db(conn, table, file_path)
+            d.init_db(conn, table_name, file_path)
 
         # drop the initial tables
         d.drop_table(conn, "Book_Info")
@@ -132,7 +132,7 @@ def main():
 
     conn.close()
 
-    ### gui ###
+    ## gui ###
     # img_path = data_dir_path + 'gui_bg.png'
 
     root = Tk()

@@ -1,3 +1,4 @@
+Id,Genre,Title,Author,PurchasePrice£,PurchaseDate
 1,Romance,It Ends with Us,Colleen Hoover,10,07/01/2011
 2,Romance,It Ends with Us,Colleen Hoover,10,08/04/2012
 3,Romance,It Ends with Us,Colleen Hoover,10,10/05/2012

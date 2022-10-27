@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 
 def create_connection(db_path):
@@ -55,37 +56,29 @@ def drop_table(conn, table_name):
     execute_query(conn, drop_table)
 
 
-def insert_data_to_table(conn, table, data):
-    title = table[0]
-    cols = table[1]
-    cols_tuple = cols.split(", ")
-    cols_tuple_len = len(cols_tuple)
+# def insert_data_to_table(conn, table, data):
+#     title = table[0]
+#     cols = table[1]
+#     cols_tuple = cols.split(", ")
+#     cols_tuple_len = len(cols_tuple)
 
-    # create a string of '?' based on the amount of cols that the table has
-    question_marks_str = ""
-    for counter, _ in enumerate(cols_tuple):
-        if cols_tuple_len == counter + 1:
-            question_marks_str += "?"
-            break
+#     # create a string of '?' based on the amount of cols that the table has
+#     question_marks_str = ""
+#     for counter, _ in enumerate(cols_tuple):
+#         if cols_tuple_len == counter + 1:
+#             question_marks_str += "?"
+#             break
 
-        question_marks_str += "?, "
+#         question_marks_str += "?, "
 
-    insert_with_param = f""" INSERT INTO {title}
-                        ({cols})
-                        VALUES ({question_marks_str}); """
+#     insert_with_param = f""" INSERT INTO {title}
+#                         ({cols})
+#                         VALUES ({question_marks_str}); """
 
-    execute_query(conn, insert_with_param, data)
+#     execute_query(conn, insert_with_param, data)
 
 
-def init_db(conn, table, file_path=None):
+def init_db(conn, table_name, file_path=None):
+    df = pd.read_csv(file_path, na_values="---")
 
-    with open(file_path, "r") as f:
-        for line in f:
-
-            # remove '\n' from each line
-            # replace three dashes with NULL value
-            line = line[:-2].replace("---", "NULL")
-
-            line_tuple = tuple(line.split(","))
-
-            insert_data_to_table(conn, table, line_tuple)
+    df.to_sql(name=table_name, con=conn, if_exists="replace", index=False)
