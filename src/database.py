@@ -15,7 +15,6 @@ def create_connection(db_path):
 
 
 def execute_query(conn, query=None, data=None):
-
     try:
         c = conn.cursor()
 
