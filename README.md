@@ -1,9 +1,15 @@
-# Environment
+# Outcomes
+- loaded txt files using pandas to_sql method
+- followed STAR schema
+- created fact tables and dimension tables programmatically (look at "create_dimension_table" function in "database.py" file)
+- mapped values to ids programmatically for assigning them as keys to tables (look at "map_vals_to_ids" function in "database.py" file)
 
+
+# Environment
 ## How to set up a virtual environment on Windows
 ```
   cd .\LibraryManagementSystem\
-  python -m venv .venv (To create your virtual environment, go into your project and run:)
+  python -m venv .venv (To create virtual environment)
   .venv\Scripts\activate (Activate virtual environment)
   pip install -r requirements.txt (Install all required packages)
 ```
