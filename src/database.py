@@ -77,7 +77,10 @@ def create_dimension_table(fact_table, col_to_be_normalized, new_cols):
 def map_vals_to_ids(
     fact_df, fact_col_name, dimension_df, dimension_keycol_name, dimension_refcol_name
 ):
-    """inspired by: https://stackoverflow.com/questions/53818434/pandas-replacing-values-by-looking-up-in-an-another-dataframe"""
+    """
+    This function maps all the values of the fact table from a dimension table
+    inspired by: https://stackoverflow.com/questions/53818434/pandas-replacing-values-by-looking-up-in-an-another-dataframe
+    """
 
     # map each col value to an id
     mapping_dict = dimension_df.set_index(dimension_refcol_name)[
@@ -105,6 +108,8 @@ def fill_new_fields(
     endRecordDate,
     isActive,
 ):
+    """This function is inserting data to the new fields of the Transactions table"""
+
     df.loc[idx, "TransactionType"] = transactionTypeMsg
     df.loc[idx, "IsCheckedOut"] = isCheckedOutNum
     df.loc[idx, "CheckedOutMemberId"] = checkedOutMemberId
@@ -123,9 +128,11 @@ def fill_new_fields(
     if reserve_or_checkout_flag == True:
         # convert the string to datetime
         init_date = datetime.strptime(initialDate, "%d/%m/%Y")
+        # add days based on the transaction type above
         expiry_date = init_date + timedelta(days=num_of_days)
         # change format
         expiry_date = expiry_date.strftime("%d/%m/%Y")
+        # get only the date and not the time
         expiry_date = str(expiry_date).split()[0]
         df.loc[idx, "TransactionTypeExpirationDate"] = expiry_date
     # Return
@@ -135,6 +142,66 @@ def fill_new_fields(
     df.loc[idx, "StartRecordDate"] = initialDate
     df.loc[idx, "EndRecordDate"] = endRecordDate
     df.loc[idx, "IsActive"] = isActive
+
+
+def deactivateLastTransaction(final_df, row):
+    """
+    This function is called for deactivating the previous transaction of the specific member id
+    In case it is the first transaction of the specific book's copy, then it won't do anything
+    """
+    allTransactions_of_bookId_df = final_df[
+        final_df["BookId"] == row.loc["BookId"]
+    ].dropna(axis=0, subset=["IsActive"])
+
+    last_activatedTransactionId = None
+    # check that there is an older transaction for the specific book id
+    if len(allTransactions_of_bookId_df) >= 1:
+        # get last transaction id that belong to the book id
+        last_activatedTransactionId = allTransactions_of_bookId_df.iloc[-1][
+            "TransactionId"
+        ]
+
+        # deactivate the last transaction
+        final_df.loc[last_activatedTransactionId - 1, "IsActive"] = 0
+
+    return last_activatedTransactionId
+
+
+def findLastMemberId_and_deactivateLastTransaction(initial_df, final_df, row):
+    """
+    This function is called when either Reserve and Checkout happen at the same time
+    or all Reserve, Checkout, Return occur in a single transaction.
+
+    As a result, the previous transaction gets deactivated and since Reserve and Checkout are
+    always part of either of the two cases above:
+    in case there is no previous transaction: both Reserve and Checkout have the same member id
+    otherwise, if the function is called for Reserve, then the CheckOutMemberId is the previous transaction's member id
+    or if thefunction is called for Checkout, then the ReservedMemberId is the previous transaction's member id
+    """
+    last_activatedTransactionId = deactivateLastTransaction(final_df, row)
+
+    if last_activatedTransactionId is not None:
+        if (
+            final_df.loc[last_activatedTransactionId - 1, "TransactionType"]
+            == "Checkout"
+            or final_df.loc[last_activatedTransactionId - 1, "TransactionType"]
+            == "Reserve"
+        ):
+            # get the last member that checked out
+            last_lastMemberId = initial_df.loc[
+                last_activatedTransactionId - 1, "MemberId"
+            ]
+        else:
+            last_lastMemberId = None
+    else:
+        last_lastMemberId = None
+
+    # there was no previous transaction => assigning the same current member id
+    if last_lastMemberId is None:
+        last_lastMemberId = row.loc["MemberId"]
+
+    # casting => fixed problem with automatically allocating 8 bytes space to the CheckedOutMemberId field where I needed to download each cell's file to see the real value
+    return int(last_lastMemberId)
 
 
 def normalize_data(conn, bookInfo_df, loanReservationHistory_df):
@@ -236,6 +303,8 @@ def normalize_data(conn, bookInfo_df, loanReservationHistory_df):
         if pd.isnull(row.loc["ReservationDate"]) == False:
             # Reserve
             if pd.isnull(row.loc["CheckoutDate"]) and pd.isnull(row.loc["ReturnDate"]):
+                deactivateLastTransaction(transactions_df, row)
+
                 fill_new_fields(
                     transactions_df,
                     idx,
@@ -261,22 +330,32 @@ def normalize_data(conn, bookInfo_df, loanReservationHistory_df):
 
                     # it is reserved by a new member even if the book is currently checked out
                     if reserve_date > checkout_date:
+                        last_checkedOutMemberId = (
+                            findLastMemberId_and_deactivateLastTransaction(
+                                loanReservationHistory_df, transactions_df, row
+                            )
+                        )
+
                         fill_new_fields(
                             transactions_df,
                             idx,
                             transactionTypeMsg="Reserve",
                             isCheckedOutNum=1,
-                            checkedOutMemberId=np.nan,
+                            checkedOutMemberId=last_checkedOutMemberId,
                             isReservedNum=1,
                             reservedMemberId=row.loc["MemberId"],
                             initialDate=row.loc["ReservationDate"],
                             endRecordDate=np.nan,
                             isActive=1,
                         )
-                        # need to go to find the last active transaction and add the last member id here and turn the last transaction to off
-
                     # otherwise, the reservation will be considered that it has already been done in the past => main transaction type will be Checkout
                     else:
+                        last_ReservedMemberId = (
+                            findLastMemberId_and_deactivateLastTransaction(
+                                loanReservationHistory_df, transactions_df, row
+                            )
+                        )
+
                         fill_new_fields(
                             transactions_df,
                             idx,
@@ -284,13 +363,19 @@ def normalize_data(conn, bookInfo_df, loanReservationHistory_df):
                             isCheckedOutNum=1,
                             checkedOutMemberId=row.loc["MemberId"],
                             isReservedNum=1,
-                            reservedMemberId=row.loc["MemberId"],
+                            reservedMemberId=last_ReservedMemberId,
                             initialDate=row.loc["CheckoutDate"],
                             endRecordDate=np.nan,
                             isActive=1,
                         )
                 # All Reserve, Checkout, Return at the same time
                 else:
+                    last_checkedOutMemberId = (
+                        findLastMemberId_and_deactivateLastTransaction(
+                            loanReservationHistory_df, transactions_df, row
+                        )
+                    )
+
                     reserve_date = datetime.strptime(
                         row.loc["ReservationDate"], "%d/%m/%Y"
                     )
@@ -303,14 +388,13 @@ def normalize_data(conn, bookInfo_df, loanReservationHistory_df):
                             idx,
                             transactionTypeMsg="Reserve",
                             isCheckedOutNum=1,
-                            checkedOutMemberId=np.nan,
+                            checkedOutMemberId=last_checkedOutMemberId,
                             isReservedNum=1,
                             reservedMemberId=row.loc["MemberId"],
                             initialDate=row.loc["ReservationDate"],
                             endRecordDate=np.nan,
                             isActive=1,
                         )
-                        # need to go to find the last active transaction and add the last member id here and turn the last transaction to off
                     # otherwise, the reservation will be considered that it has already been done in the past => main transaction type will be Return
                     else:
                         fill_new_fields(
@@ -318,18 +402,19 @@ def normalize_data(conn, bookInfo_df, loanReservationHistory_df):
                             idx,
                             transactionTypeMsg="Return",
                             isCheckedOutNum=1,
-                            checkedOutMemberId=np.nan,
+                            checkedOutMemberId=last_checkedOutMemberId,
                             isReservedNum=1,
                             reservedMemberId=row.loc["MemberId"],
                             initialDate=row.loc["ReturnDate"],
                             endRecordDate=np.nan,
                             isActive=1,
                         )
-                        # need to go to find the last active transaction and add the last member id here and turn the last transaction to off
         elif (
             pd.isnull(row.loc["ReservationDate"])
             and pd.isnull(row.loc["CheckoutDate"]) == False
         ):
+            deactivateLastTransaction(transactions_df, row)
+
             # just Checkout
             if pd.isnull(row.loc["ReturnDate"]):
                 fill_new_fields(

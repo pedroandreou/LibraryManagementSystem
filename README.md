@@ -3,6 +3,13 @@
 - followed STAR schema
 - created fact tables and dimension tables programmatically (look at "create_dimension_table" function in "database.py" file)
 - mapped values to ids programmatically for assigning them as keys to tables (look at "map_vals_to_ids" function in "database.py" file)
+- set expiration dates to people that reserve or checkout a book (reservation can last for 10 days while checkout for 30 days)
+
+
+# Notes
+- In case you want to check if the normalization really happens which would require to change some of the data in the txt files; make sure the db file is deleted
+before you run the program again as it won't load the changes. The reason is because I am checking if the db exists and in case it does,
+then I skip the loading part since it only needs to be loaded once as well as as the changes of the program will stay whereas in case of loading the db every single time the program runs, then the data would be always overwritten and the user's changes would be always lost after a session.
 
 
 # Environment
