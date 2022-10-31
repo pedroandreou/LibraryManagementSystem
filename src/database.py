@@ -174,12 +174,13 @@ def findLastMemberId_and_deactivateLastTransaction(initial_df, final_df, row):
 
     As a result, the previous transaction gets deactivated and since Reserve and Checkout are
     always part of either of the two cases above:
-    in case there is no previous transaction: both Reserve and Checkout have the same member id
+    in case there is no previous transaction: both Reserve and Checkout have the same member id for the new transaction
     otherwise, if the function is called for Reserve, then the CheckOutMemberId is the previous transaction's member id
     or if thefunction is called for Checkout, then the ReservedMemberId is the previous transaction's member id
     """
     last_activatedTransactionId = deactivateLastTransaction(final_df, row)
 
+    last_lastMemberId = None
     if last_activatedTransactionId is not None:
         if (
             final_df.loc[last_activatedTransactionId - 1, "TransactionType"]
@@ -191,10 +192,6 @@ def findLastMemberId_and_deactivateLastTransaction(initial_df, final_df, row):
             last_lastMemberId = initial_df.loc[
                 last_activatedTransactionId - 1, "MemberId"
             ]
-        else:
-            last_lastMemberId = None
-    else:
-        last_lastMemberId = None
 
     # there was no previous transaction => assigning the same current member id
     if last_lastMemberId is None:
@@ -217,7 +214,7 @@ def normalize_data(conn, bookInfo_df, loanReservationHistory_df):
         bookInventory_df, "Genre", genre_df, "GenreKey", "GenreRef"
     )
 
-    # create and fill Title table with unique values of title books and map the ids
+    # create and fill Title table with unique values of book titles and map the ids
     bookTitles_df = create_dimension_table(
         bookInventory_df, "Title", ["BookTitleKey", "BookTitleRef"]
     )
@@ -225,7 +222,7 @@ def normalize_data(conn, bookInfo_df, loanReservationHistory_df):
         bookInventory_df, "Title", bookTitles_df, "BookTitleKey", "BookTitleRef"
     )
 
-    # create and fill Author table with unique values of author books and map the ids
+    # create and fill Author table with unique values of book authors and map the ids
     bookAuthors_df = create_dimension_table(
         bookInventory_df, "Author", ["BookAuthorKey", "BookAuthorRef"]
     )

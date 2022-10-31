@@ -1,10 +1,13 @@
-from tkinter import Label, Entry, Button, Frame, Listbox, messagebox, CENTER
-from tkinter.ttk import Combobox
+from tkinter import Label, Entry, Button, Frame, messagebox, CENTER
+from tkinter.ttk import Combobox, Treeview
+from turtle import width
+from bookSearch import find_books
 
 
 class app:
-    def __init__(self, master):
+    def __init__(self, master, conn):
         self.master = master
+        self.conn = conn
         self.master.title("Library Management System")
         self.master.geometry("950x750")
         self.master.configure(background="#FFC300")
@@ -52,15 +55,12 @@ class app:
         )
         self.rec_bton.place(relx=0.5, rely=0.65, anchor=CENTER, height=40, width=340)
 
-    def get_data(self):
-        print(self.memberid_entry.get())
-
     def create_label_entry_widgets(self, frame, label_text, height):
         self.memberid_label = Label(
             frame, text=label_text, font=("calibre", 10, "bold")
         )
         self.memberid_label.place(
-            relx=0.4, rely=height, anchor=CENTER, height=40, width=200
+            relx=0.5, rely=height, anchor=CENTER, height=40, width=200
         )
 
         self.memberid_entry = Entry(frame, font=("calibre", 10, "normal"))
@@ -68,7 +68,7 @@ class app:
             relx=0.69, rely=height, anchor=CENTER, height=40, width=220
         )
 
-    def create_bottom_button_widgets(self, frame):
+    def create_bottom_button_widgets(self, frame, curr_page):
         self.go_back_bton = Button(
             frame,
             text="Go Back",
@@ -81,14 +81,25 @@ class app:
             relx=0.35, rely=0.9, anchor=CENTER, height=40, width=220
         )
 
-        self.submit_bton = Button(
-            frame,
-            text="Submit",
-            font="sans 16 bold",
-            fg="white",
-            bg="black",
-            command=self.get_data,
-        )
+        if curr_page == "search_book":
+            self.submit_bton = Button(
+                frame,
+                text="Submit",
+                font="sans 16 bold",
+                fg="white",
+                bg="black",
+                command=lambda: find_books(
+                    self.memberid_entry.get(), self.conn, self.tree
+                ),
+            )
+        else:
+            self.submit_bton = Button(
+                frame,
+                text="Submit",
+                font="sans 16 bold",
+                fg="white",
+                bg="black",
+            )
         self.submit_bton.place(relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220)
 
     def search_book_page(self):
@@ -96,30 +107,60 @@ class app:
         self.destroy_page_widgets()
 
         # create new frame for 'search book' page to attach all its widgets
-        self.sb_frame = Frame(self.master, bg="#FFC300", height=700, width=700)
+        self.sb_frame = Frame(self.master, bg="#FFC300", height=700, width=1200)
 
-        langs = ["Java", "C#", "C", "C++", "Python", "Go", "JavaScript", "PHP", "Swift"]
-        # var = StringVar(langs)
+        # widgets for "search book" label and entry for getting user input
+        self.create_label_entry_widgets(
+            frame=self.sb_frame, label_text="Search Book Title", height=0.1
+        )
 
-        # widgets
-        self.create_label_entry_widgets(self.sb_frame, "Search Book Title", 0.1)
+        # add a Treeview widget
+        self.tree = Treeview(
+            self.sb_frame,
+            columns=[
+                "BookId",
+                "Genre",
+                "Title",
+                "Book Author",
+                "Purchase Price",
+                "Purchase Date",
+            ],
+            show="headings",
+            height=20,
+        )
+        # define headings
+        self.tree.column("# 1", anchor=CENTER, stretch=False, width=120)
+        self.tree.heading("# 1", text="Id")
+        self.tree.column("# 2", anchor=CENTER, stretch=False, width=140)
+        self.tree.heading("# 2", text="Genre")
+        self.tree.column("# 3", anchor=CENTER, stretch=False, width=223)
+        self.tree.heading("# 3", text="Title")
+        self.tree.column("# 4", anchor=CENTER, stretch=False, width=223)
+        self.tree.heading("# 4", text="Author")
+        self.tree.heading("# 5", text="Purchase Price")
+        self.tree.column("# 5", anchor=CENTER, stretch=False, width=140)
+        self.tree.heading("# 6", text="Purchase Date")
+        self.tree.column("# 6", anchor=CENTER, stretch=False, width=223)
+        self.tree.place(x=130, y=140, width=1400)
 
-        self.listbox = Listbox(self.sb_frame, height=10, background="black", fg="white")
-        self.listbox.insert("end", *langs)
-        self.listbox.place(relx=0.53, rely=0.5, anchor=CENTER, height=350, width=700)
-
-        self.create_bottom_button_widgets(self.sb_frame)
+        self.create_bottom_button_widgets(self.sb_frame, "search_book")
 
         # show frame with all its widgets
-        self.sb_frame.pack(padx=1, pady=1)
+        self.sb_frame.pack()
 
     def show_diff_widgets_based_on_action_submitted(self):
         if self.rcr_dropdown.get() == "Reserve Book":
-            self.create_label_entry_widgets(self.rcr_frame, "Book ID", 0.3)
+            self.create_label_entry_widgets(
+                frame=self.rcr_frame, label_text="Book ID", height=0.3
+            )
 
         elif self.rcr_dropdown.get() == "Checkout Book":
-            self.create_label_entry_widgets(self.rcr_frame, "Member ID", 0.2)
-            self.create_label_entry_widgets(self.rcr_frame, "Book ID", 0.3)
+            self.create_label_entry_widgets(
+                frame=self.rcr_frame, label_text="Member ID", height=0.2
+            )
+            self.create_label_entry_widgets(
+                frame=self.rcr_frame, label_text="Book ID", height=0.3
+            )
 
             # invalid => member ID or book ID is wrong
             messagebox.showerror("error", "Unsuccessful Checkout")
@@ -134,7 +175,9 @@ class app:
             messagebox.showinfo("success", "Successful Checkout")
 
         elif self.rcr_dropdown.get() == "Return Book":
-            self.create_label_entry_widgets(self.rcr_frame, "Book ID", 0.3)
+            self.create_label_entry_widgets(
+                frame=self.rcr_frame, label_text="Book ID", height=0.3
+            )
 
             # if id is invalid or the book is already available
             messagebox.showerror(
@@ -149,7 +192,7 @@ class app:
         self.destroy_page_widgets()
 
         # create new frame for the 'rcr' page to attach all its widgets
-        self.rcr_frame = Frame(self.master, bg="#FFC300", height=700, width=700)
+        self.rcr_frame = Frame(self.master, bg="#FFC300", height=700, width=900)
 
         # widgets
         self.rcr_dropdown = Combobox(
@@ -164,13 +207,15 @@ class app:
         )
 
         self.action_submit_btn = Button(
-            self.master,
+            self.rcr_frame,
             text="Submit Action",
             command=self.show_diff_widgets_based_on_action_submitted,
         )
-        self.action_submit_btn.place(relx=0.9, rely=0.09, anchor=CENTER)
+        self.action_submit_btn.place(
+            relx=0.9, rely=0.10, anchor=CENTER, height=30, width=150
+        )
 
-        self.create_bottom_button_widgets(self.rcr_frame)
+        self.create_bottom_button_widgets(self.rcr_frame, "rcr_page")
 
         # show frame with all its widgets
         self.rcr_frame.pack(padx=1, pady=1)

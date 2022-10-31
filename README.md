@@ -52,9 +52,24 @@ When a new requirement is needed you should add it to `unpinned_requirements.txt
 make update-requirements-txt
 ```
 
+## How to run sqlite3.exe file on Ubuntu
+```
+pip install wine
+wine sqlite3.exe
+```
+
+## How to play around with my db on Ubuntu
+```
+sudo apt install sqlite3
+./LibraryManagementSystem/data
+sqlite3 library.db
+```
+
+
 ## 🛠 Initialization & Setup
 #### Clone the repository
     git clone https://github.com/pedroandreou/LIbraryManagementSystem.git
+
 
 ## Author
 Petros Andreou

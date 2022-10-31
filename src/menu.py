@@ -63,7 +63,7 @@ def main():
                 "BookId PRIMARY KEY",
                 "GenreKey INTEGER",
                 "BookTitleKey INTEGER NOT NULL",
-                "BookAuthorKey TEXT NOT NULL",
+                "BookAuthorKey INTEGER NOT NULL",
                 "BookCopyKey INTEGER",
                 "FOREIGN KEY (GenreKey) REFERENCES Genre(GenreKey)",
                 "FOREIGN KEY (BookTitleKey) REFERENCES BookTitle(BookTitleKey)",
@@ -129,14 +129,14 @@ def main():
     else:
         print("Error! cannot create the database connection")
 
-    conn.close()
-
     ## gui ###
-    img_path = data_dir_path + "gui_bg.png"
+    # img_path = data_dir_path + "gui_bg.png"
 
     root = Tk()
-    gui.app(root)
+    gui.app(root, conn)
     root.mainloop()
+
+    conn.close()
 
 
 if __name__ == "__main__":
