@@ -25,7 +25,7 @@ Id,Genre,Title,Author,PurchasePrice£,PurchaseDate
 24,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
 25,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
 26,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
-27,Biography,The Autobiography of Malcolm X,Alex Haley and Malcolm X,10,20/07/2010
+27,Biography,The Autobiography of Malcolm X,Alex Haley X,10,20/07/2010
 28,Romance,The Notebook,Nicholas Sparks,25,12/01/2015
 29,Mystery, Bluebird,Attica Locke,5,24/07/2013
 30,Sci-fi,The Three-Body Problem,Liu Cixin,10,24/07/2013
@@ -40,16 +40,16 @@ Id,Genre,Title,Author,PurchasePrice£,PurchaseDate
 39,Mystery,Da Vinci Code,Dan Brown,20,12/01/2015
 40,Sci-fi,Foundation,Isaac Asimov,15,24/07/2013
 41,Sci-fi,Foundation,Isaac Asimov,15,13/08/2014
-42,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-43,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-44,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-45,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-46,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-47,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-48,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-49,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-50,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
-51,Thriller,The Wife Between Us,Greer Hendricks and Sarah Pekkanen,25,12/01/2015
+42,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+43,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+44,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+45,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+46,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+47,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+48,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+49,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+50,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+51,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
 52,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
 53,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
 54,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013

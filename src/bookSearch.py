@@ -29,7 +29,7 @@ def find_books(text, conn, tree):
         except sqlite3.Error as error:
             print(error)
 
-        # sort data based on the BookId
+        # sort list based on the first element of each tuple, bookId
         sorted_data = sorted(data, key=lambda x: x[0])
 
         for row_tuple in sorted_data:
