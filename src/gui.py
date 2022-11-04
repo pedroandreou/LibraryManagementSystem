@@ -16,14 +16,17 @@ class app:
         self.master.configure(background="#FFC300")
         self.main_page()
   
-    # Method to make Button(widget) visible
     def show_frame(self, frame):
-        # recover the frame from toplevel
+        #  make frame visible to toplevel
         frame.pack()
 
     def hide_frame(self, frame):
         # remove the frame from toplevel
         frame.pack_forget()
+    
+    def get_font_fg_bg(self):
+
+        return {'font' : "sans 16 bold", 'fg' : "white", 'bg' : "black"}
 
     def main_page(self):
         self.master.title("Library Management System")
@@ -33,9 +36,7 @@ class app:
         self.search_bton = Button(
             self.main_frame,
             text="Search Book",
-            font="sans 16 bold",
-            fg="white",
-            bg="black",
+            **self.get_font_fg_bg(),
             command=lambda: [self.hide_frame(self.main_frame), self.search_book_page()],
         )
         self.search_bton.place(relx=0.5, rely=0.45, anchor=CENTER, height=40, width=300)
@@ -44,9 +45,7 @@ class app:
         self.rcr_bton = Button(
             self.main_frame,
             text="Reserve/Checkout/Return\nBook",
-            font="sans 16 bold",
-            fg="white",
-            bg="black",
+            **self.get_font_fg_bg(),
             command=lambda: [self.hide_frame(self.main_frame), self.rcr_page()],
         )
         self.rcr_bton.place(relx=0.5, rely=0.55, anchor=CENTER, height=60, width=400)
@@ -54,9 +53,7 @@ class app:
         self.rec_bton = Button(
             self.main_frame,
             text="Find Recommended Books",
-            font="sans 16 bold",
-            fg="white",
-            bg="black",
+            **self.get_font_fg_bg(),
             command=lambda: [self.hide_frame(self.main_frame), self.recommendation_page()],
         )
         self.rec_bton.place(relx=0.5, rely=0.65, anchor=CENTER, height=40, width=340)
@@ -88,9 +85,7 @@ class app:
         self.go_back_bton = Button(
             frame,
             text="Go Back",
-            font="sans 16 bold",
-            fg="white",
-            bg="black",
+            **self.get_font_fg_bg(),
             command=lambda: [self.hide_frame(frame), self.main_page()],
         )
         self.go_back_bton.place(
@@ -101,9 +96,7 @@ class app:
             self.submit_bton = Button(
                 frame,
                 text="Submit",
-                font="sans 16 bold",
-                fg="white",
-                bg="black",
+                **self.get_font_fg_bg(),
                 command=lambda: find_books(
                     self.memberid_entry.get(), self.conn, self.tree
                 )
@@ -113,13 +106,15 @@ class app:
             self.submit_bton = Button(
                 frame,
                 text="Submit",
-                font="sans 16 bold",
-                fg="white",
-                bg="black",
+                **self.get_font_fg_bg(),
                 command=lambda: self.call_appropriate_rcr_action(
                     self.memberid_entry.get(), self.rcr_dropdown.get()),
             )
         self.submit_bton.place(relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220)
+
+    def define_treeView_heading(self, order_num, width_num, col_name):
+        self.tree.column(f"# {order_num}", anchor=CENTER, stretch=False, width=width_num)
+        self.tree.heading(f"# {order_num}", text=col_name)
 
     def search_book_page(self):
         self.master.title("Search Book")
@@ -147,18 +142,13 @@ class app:
             height=20,
         )
         # define headings
-        self.tree.column("# 1", anchor=CENTER, stretch=False, width=120)
-        self.tree.heading("# 1", text="Id")
-        self.tree.column("# 2", anchor=CENTER, stretch=False, width=140)
-        self.tree.heading("# 2", text="Genre")
-        self.tree.column("# 3", anchor=CENTER, stretch=False, width=223)
-        self.tree.heading("# 3", text="Title")
-        self.tree.column("# 4", anchor=CENTER, stretch=False, width=223)
-        self.tree.heading("# 4", text="Author")
-        self.tree.heading("# 5", text="Purchase Price")
-        self.tree.column("# 5", anchor=CENTER, stretch=False, width=140)
-        self.tree.heading("# 6", text="Purchase Date")
-        self.tree.column("# 6", anchor=CENTER, stretch=False, width=223)
+        self.define_treeView_heading('1', 120, 'Id')
+        self.define_treeView_heading('2', 140, 'Genre')
+        self.define_treeView_heading('3', 223, 'Title')
+        self.define_treeView_heading('4', 223, 'Author')
+        self.define_treeView_heading('5', 140, 'Purchase Price')
+        self.define_treeView_heading('6', 223, 'Purchase Date')
+
         self.tree.place(x=130, y=140, width=1400)
 
         self.create_bottom_button_widgets(self.sb_frame, "search_book")
