@@ -11,11 +11,14 @@ class app:
         self.master = master
         self.conn = conn
         self.master.title("Library Management System")
-        self.w, self.h = self.master.winfo_screenwidth(), self.master.winfo_screenheight()
+        self.w, self.h = (
+            self.master.winfo_screenwidth(),
+            self.master.winfo_screenheight(),
+        )
         self.master.geometry("%dx%d+0+0" % (self.w, self.h))
         self.master.configure(background="#FFC300")
         self.main_page()
-  
+
     def show_frame(self, frame):
         #  make frame visible to toplevel
         frame.pack()
@@ -23,10 +26,10 @@ class app:
     def hide_frame(self, frame):
         # remove the frame from toplevel
         frame.pack_forget()
-    
+
     def get_font_fg_bg(self):
 
-        return {'font' : "sans 16 bold", 'fg' : "white", 'bg' : "black"}
+        return {"font": "sans 16 bold", "fg": "white", "bg": "black"}
 
     def main_page(self):
         self.master.title("Library Management System")
@@ -54,7 +57,10 @@ class app:
             self.main_frame,
             text="Find Recommended Books",
             **self.get_font_fg_bg(),
-            command=lambda: [self.hide_frame(self.main_frame), self.recommendation_page()],
+            command=lambda: [
+                self.hide_frame(self.main_frame),
+                self.recommendation_page(),
+            ],
         )
         self.rec_bton.place(relx=0.5, rely=0.65, anchor=CENTER, height=40, width=340)
 
@@ -99,7 +105,7 @@ class app:
                 **self.get_font_fg_bg(),
                 command=lambda: find_books(
                     self.memberid_entry.get(), self.conn, self.tree
-                )
+                ),
             )
         # rcr page
         else:
@@ -108,12 +114,15 @@ class app:
                 text="Submit",
                 **self.get_font_fg_bg(),
                 command=lambda: self.call_appropriate_rcr_action(
-                    self.memberid_entry.get(), self.rcr_dropdown.get()),
+                    self.memberid_entry.get(), self.rcr_dropdown.get()
+                ),
             )
         self.submit_bton.place(relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220)
 
     def define_treeView_heading(self, order_num, width_num, col_name):
-        self.tree.column(f"# {order_num}", anchor=CENTER, stretch=False, width=width_num)
+        self.tree.column(
+            f"# {order_num}", anchor=CENTER, stretch=False, width=width_num
+        )
         self.tree.heading(f"# {order_num}", text=col_name)
 
     def search_book_page(self):
@@ -142,12 +151,12 @@ class app:
             height=20,
         )
         # define headings
-        self.define_treeView_heading('1', 120, 'Id')
-        self.define_treeView_heading('2', 140, 'Genre')
-        self.define_treeView_heading('3', 223, 'Title')
-        self.define_treeView_heading('4', 223, 'Author')
-        self.define_treeView_heading('5', 140, 'Purchase Price')
-        self.define_treeView_heading('6', 223, 'Purchase Date')
+        self.define_treeView_heading("1", 120, "Id")
+        self.define_treeView_heading("2", 140, "Genre")
+        self.define_treeView_heading("3", 223, "Title")
+        self.define_treeView_heading("4", 223, "Author")
+        self.define_treeView_heading("5", 140, "Purchase Price")
+        self.define_treeView_heading("6", 223, "Purchase Date")
 
         self.tree.place(x=130, y=140, width=1400)
 
@@ -170,39 +179,39 @@ class app:
         #     self.create_label_entry_widgets(
         #         frame=self.rcr_frame, label_text="Book ID", height=0.3
         #     )
-            
+
         #     self.create_label_entry_widgets(
         #         frame=self.rcr_frame, label_text="Member ID", height=0.2
         #     )
 
-            # # invalid => member ID or book ID is wrong
-            # messagebox.showerror("error", "Unsuccessful Checkout")
+        # # invalid => member ID or book ID is wrong
+        # messagebox.showerror("error", "Unsuccessful Checkout")
 
-            # valid member ID and book ID
-            # if book is available => not on loan or is already reserved
-            # checkout the book and update the db
+        # valid member ID and book ID
+        # if book is available => not on loan or is already reserved
+        # checkout the book and update the db
 
-            ### else ###
-            # invalid checkout => the book is not available (on loan or reservation)
-            # allow user to reserve it
-            # messagebox.showinfo("success", "Successful Checkout")
+        ### else ###
+        # invalid checkout => the book is not available (on loan or reservation)
+        # allow user to reserve it
+        # messagebox.showinfo("success", "Successful Checkout")
 
         # elif self.rcr_dropdown.get() == "Return Book":
         #     self.create_label_entry_widgets(
         #         frame=self.rcr_frame, label_text="Book ID", height=0.3
         #     )
-            
+
         #     self.create_label_entry_widgets(
         #         frame=self.rcr_frame, label_text="Member ID", height=0.2
         #     )
 
         #     # if id is invalid or the book is already available
-            # messagebox.showerror(
+        # messagebox.showerror(
         #         "error",
         #         "Unsuccessful Return\nEither the Book ID is invalid or the book is available",
         #     )
 
-            # once it is returned - show a message if the book is pre-reserved by a member
+        # once it is returned - show a message if the book is pre-reserved by a member
 
     def rcr_page(self):
         self.master.title("Checkout Book")
