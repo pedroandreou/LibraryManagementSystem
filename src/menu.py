@@ -6,10 +6,10 @@ import gui
 
 def main():
     repo_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    data_dir_path = os.path.join(repo_path, "data/")
+    data_dir_path = os.path.join(repo_path, "data")
 
     ## database ###
-    db_path = data_dir_path + "library.db"
+    db_path = f"{data_dir_path}/library.db"
     db_exists_flag = os.path.isfile(db_path)
 
     database = d.database(db_path)
@@ -46,7 +46,7 @@ def main():
         loan_res_hist_df = None
         table_names = [create_book_info[0], create_loan_reservation_history[0]]
         for table_name in table_names:
-            file_path = f"{data_dir_path}{table_name}.txt"
+            file_path = f"{data_dir_path}/data_files/{table_name}.txt"
 
             # fill each initial table with data
             df = database.init_db(table_name, file_path)
@@ -130,10 +130,12 @@ def main():
         print("DB already exists; no need for creating our tables from scratch again!")
 
     ## gui ###
-    # img_path = data_dir_path + "gui_bg.png"
+    bs_img_path = f"{data_dir_path}/imgs/bs_img.png"
+    rcr_img_path = f"{data_dir_path}/imgs/rcr_img.png"
+    frb_img_path = f"{data_dir_path}/imgs/frb_img.png"
 
     root = Tk()
-    gui.app(root, database.conn)
+    gui.app(root, database.conn, bs_img_path, rcr_img_path, frb_img_path)
     root.mainloop()
 
     database.conn.close()

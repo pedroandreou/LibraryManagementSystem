@@ -1,5 +1,5 @@
 # Outcomes:
-- Loaded txt files using pandas to_sql method
+- Loaded txt files using the pandas 'to_sql' method
 - Followed STAR schema
 - Created fact tables and dimension tables programmatically (look at "create_dimension_table" function in "database.py" file)
 - Mapped values to ids programmatically for assigning them as keys to tables (look at "map_vals_to_ids" function in "database.py" file)
@@ -12,6 +12,7 @@ def destroy_page_widgets(self):
     i.destroy()
 ```
 I am hiding and making the frames invisible again when appropriate (see at "show_frame" and "hide_frame" function in "gui.py" file)
+- Added images to Tkinter buttons
 
 
 # Notes:

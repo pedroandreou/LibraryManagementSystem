@@ -1,4 +1,5 @@
-from tkinter import Label, Entry, Button, Frame, messagebox, CENTER
+from tkinter import Text, Label, Entry, Button, Frame, messagebox, CENTER, END
+from PIL import Image, ImageTk
 from tkinter.ttk import Combobox, Treeview
 from bookSearch import find_books
 from bookReserve import reserve_book
@@ -7,7 +8,7 @@ from bookReturn import return_book
 
 
 class app:
-    def __init__(self, master, conn):
+    def __init__(self, master, conn, bs_img_path, rcr_img_path, frb_img_path):
         self.master = master
         self.conn = conn
         self.master.title("Library Management System")
@@ -17,11 +18,18 @@ class app:
         )
         self.master.geometry("%dx%d+0+0" % (self.w, self.h))
         self.master.configure(background="#FFC300")
+        self.bs_img_path = bs_img_path
+        self.rcr_img_path = rcr_img_path
+        self.frb_img_path = frb_img_path
         self.main_page()
 
     def show_frame(self, frame):
+        #  set border color
+        frame.config(
+            highlightbackground="black", highlightcolor="black", highlightthickness=10
+        )
         #  make frame visible to toplevel
-        frame.pack()
+        frame.pack(expand=True)
 
     def hide_frame(self, frame):
         # remove the frame from toplevel
@@ -31,38 +39,53 @@ class app:
 
         return {"font": "sans 16 bold", "fg": "white", "bg": "black"}
 
+    def get_img_obj(self, img_path):
+        label = Label(self.master)
+        img = Image.open(img_path)
+        label.img = ImageTk.PhotoImage(img)
+
+        return label.img
+
     def main_page(self):
         self.master.title("Library Management System")
 
         self.main_frame = Frame(self.master, bg="#FFC300", height=700, width=900)
 
+        # add Text widget
+        T = Text(self.main_frame, **self.get_font_fg_bg(), height=5, width=52)
+        text = "\nWelcome to Petros's Library Management System"
+        T.tag_configure("center", justify="center")
+        T.insert(END, text)
+        T.tag_add("center", "1.0", END)
+        T.place(relx=0.53, rely=0.35, anchor=CENTER, height=80, width=700)
+
         self.search_bton = Button(
             self.main_frame,
-            text="Search Book",
             **self.get_font_fg_bg(),
+            image=self.get_img_obj(self.bs_img_path),
             command=lambda: [self.hide_frame(self.main_frame), self.search_book_page()],
         )
-        self.search_bton.place(relx=0.5, rely=0.45, anchor=CENTER, height=40, width=300)
+        self.search_bton.place(relx=0.5, rely=0.55, anchor=CENTER, height=60, width=400)
 
         # rcr => reserve, checkout, return
         self.rcr_bton = Button(
             self.main_frame,
-            text="Reserve/Checkout/Return\nBook",
             **self.get_font_fg_bg(),
+            image=self.get_img_obj(self.rcr_img_path),
             command=lambda: [self.hide_frame(self.main_frame), self.rcr_page()],
         )
-        self.rcr_bton.place(relx=0.5, rely=0.55, anchor=CENTER, height=60, width=400)
+        self.rcr_bton.place(relx=0.5, rely=0.65, anchor=CENTER, height=60, width=400)
 
         self.rec_bton = Button(
             self.main_frame,
-            text="Find Recommended Books",
             **self.get_font_fg_bg(),
+            image=self.get_img_obj(self.frb_img_path),
             command=lambda: [
                 self.hide_frame(self.main_frame),
                 self.recommendation_page(),
             ],
         )
-        self.rec_bton.place(relx=0.5, rely=0.65, anchor=CENTER, height=40, width=340)
+        self.rec_bton.place(relx=0.5, rely=0.75, anchor=CENTER, height=60, width=400)
 
         self.show_frame(self.main_frame)
 
