@@ -9,7 +9,7 @@ def find_books(text, conn, tree):
 
     # check that input is not only whitespace
     if len(text.strip()) != 0:
-        basic_query = f"""SELECT bi.BookId, g.GenreRef, bt.BookTitleRef, ba.BookAuthorRef, bc.PurchasePrice£, bc.PurchaseDate
+        search_query = f"""SELECT bi.BookId, g.GenreRef, bt.BookTitleRef, ba.BookAuthorRef, bc.PurchasePrice£, bc.PurchaseDate
     FROM BookInventory bi
     INNER JOIN Genre g on g.GenreKey = bi.GenreKey
     INNER JOIN BookTitle bt on bt.BookTitleKey = bi.BookTitleKey
@@ -17,12 +17,10 @@ def find_books(text, conn, tree):
     INNER JOIN BookCopies bc on bc.BookCopyKey = bi.BookCopyKey
     WHERE bt.BookTitleRef LIKE '%{text}%';"""
 
-        # query_to_run = '\n'.join([prelude, basic_query, postlude])
-
         data = []
         try:
             c = conn.cursor()
-            c.execute(basic_query)
+            c.execute(search_query)
 
             for row in c.fetchall():
                 data.append(row)
