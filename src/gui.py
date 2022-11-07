@@ -104,6 +104,14 @@ class app:
         else:
             return_book()
 
+    def check_in_which_page_submit_button_was_pressed(self, curr_page):
+        if curr_page == "search_book":
+            return lambda: find_books(self.entry_widget.get(), self.conn, self.tree)
+        elif curr_page == "rcr_page":
+            return lambda: self.call_appropriate_rcr_action(
+                self.entry_widget.get(), self.rcr_dropdown.get()
+            )
+
     def create_bottom_button_widgets(self, frame, curr_page):
         self.go_back_bton = Button(
             frame,
@@ -115,25 +123,12 @@ class app:
             relx=0.35, rely=0.9, anchor=CENTER, height=40, width=220
         )
 
-        if curr_page == "search_book":
-            self.submit_bton = Button(
-                frame,
-                text="Submit",
-                **self.get_font_fg_bg(),
-                command=lambda: find_books(
-                    self.entry_widget.get(), self.conn, self.tree
-                ),
-            )
-        # rcr page
-        else:
-            self.submit_bton = Button(
-                frame,
-                text="Submit",
-                **self.get_font_fg_bg(),
-                command=lambda: self.call_appropriate_rcr_action(
-                    self.entry_widget.get(), self.rcr_dropdown.get()
-                ),
-            )
+        self.submit_bton = Button(
+            frame,
+            text="Submit",
+            **self.get_font_fg_bg(),
+            command=self.check_in_which_page_submit_button_was_pressed(curr_page),
+        )
         self.submit_bton.place(relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220)
 
     def define_treeView_heading(self, order_num, width_num, col_name):
@@ -177,13 +172,18 @@ class app:
 
         self.tree.place(x=200, y=140)
 
-        self.create_bottom_button_widgets(self.sb_frame, "search_book")
+        self.create_bottom_button_widgets(frame=self.sb_frame, curr_page="search_book")
 
         # show frame with all its widgets
         self.show_frame(self.sb_frame)
 
-    def show_diff_widgets_based_on_action_submitted(self):
-        # if self.rcr_dropdown.get() == "Reserve Book":
+    def show_id_label_entry_widgets(self):
+        messagebox.showinfo(
+            "Success",
+            f"""You are ready to
+{self.rcr_dropdown.get().split(' ')[0]} a {self.rcr_dropdown.get().split(' ')[1]}!""",
+        )
+
         self.create_label_entry_widgets(
             frame=self.rcr_frame, label_text="Book ID", y=0.3, x1=0.35, x2=0.55
         )
@@ -191,44 +191,6 @@ class app:
         self.create_label_entry_widgets(
             frame=self.rcr_frame, label_text="Member ID", y=0.4, x1=0.35, x2=0.55
         )
-
-        # elif self.rcr_dropdown.get() == "Checkout Book":
-        #     self.create_label_entry_widgets(
-        #         frame=self.rcr_frame, label_text="Book ID", height=0.3
-        #     )
-
-        #     self.create_label_entry_widgets(
-        #         frame=self.rcr_frame, label_text="Member ID", height=0.2
-        #     )
-
-        # # invalid => member ID or book ID is wrong
-        # messagebox.showerror("error", "Unsuccessful Checkout")
-
-        # valid member ID and book ID
-        # if book is available => not on loan or is already reserved
-        # checkout the book and update the db
-
-        ### else ###
-        # invalid checkout => the book is not available (on loan or reservation)
-        # allow user to reserve it
-        # messagebox.showinfo("success", "Successful Checkout")
-
-        # elif self.rcr_dropdown.get() == "Return Book":
-        #     self.create_label_entry_widgets(
-        #         frame=self.rcr_frame, label_text="Book ID", height=0.3
-        #     )
-
-        #     self.create_label_entry_widgets(
-        #         frame=self.rcr_frame, label_text="Member ID", height=0.2
-        #     )
-
-        #     # if id is invalid or the book is already available
-        # messagebox.showerror(
-        #         "error",
-        #         "Unsuccessful Return\nEither the Book ID is invalid or the book is available",
-        #     )
-
-        # once it is returned - show a message if the book is pre-reserved by a member
 
     def rcr_page(self):
         self.master.title("Checkout Book")
@@ -251,13 +213,13 @@ class app:
         self.action_submit_btn = Button(
             self.rcr_frame,
             text="Submit Action",
-            command=self.show_diff_widgets_based_on_action_submitted,
+            command=self.show_id_label_entry_widgets,
         )
         self.action_submit_btn.place(
             relx=0.8, rely=0.10, anchor=CENTER, height=30, width=150
         )
 
-        self.create_bottom_button_widgets(self.rcr_frame, "rcr_page")
+        self.create_bottom_button_widgets(frame=self.rcr_frame, curr_page="rcr_page")
 
         # show frame with all its widgets
         self.show_frame(self.rcr_frame)
