@@ -89,18 +89,12 @@ class app:
 
         self.show_frame(self.main_frame)
 
-    def create_label_entry_widgets(self, frame, label_text, height):
-        self.memberid_label = Label(
-            frame, text=label_text, font=("calibre", 10, "bold")
-        )
-        self.memberid_label.place(
-            relx=0.5, rely=height, anchor=CENTER, height=40, width=200
-        )
+    def create_label_entry_widgets(self, frame, label_text, y, x1=0.48, x2=0.65):
+        self.entry_label = Label(frame, text=label_text, font=("calibre", 10, "bold"))
+        self.entry_label.place(relx=x1, rely=y, anchor=CENTER, height=40, width=200)
 
-        self.memberid_entry = Entry(frame, font=("calibre", 10, "normal"))
-        self.memberid_entry.place(
-            relx=0.69, rely=height, anchor=CENTER, height=40, width=220
-        )
+        self.entry_widget = Entry(frame, font=("calibre", 10, "normal"))
+        self.entry_widget.place(relx=x2, rely=y, anchor=CENTER, height=40, width=220)
 
     def call_appropriate_rcr_action(self, member_id, action_submitted):
         if action_submitted == "Reserve Book":
@@ -127,7 +121,7 @@ class app:
                 text="Submit",
                 **self.get_font_fg_bg(),
                 command=lambda: find_books(
-                    self.memberid_entry.get(), self.conn, self.tree
+                    self.entry_widget.get(), self.conn, self.tree
                 ),
             )
         # rcr page
@@ -137,7 +131,7 @@ class app:
                 text="Submit",
                 **self.get_font_fg_bg(),
                 command=lambda: self.call_appropriate_rcr_action(
-                    self.memberid_entry.get(), self.rcr_dropdown.get()
+                    self.entry_widget.get(), self.rcr_dropdown.get()
                 ),
             )
         self.submit_bton.place(relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220)
@@ -152,11 +146,11 @@ class app:
         self.master.title("Search Book")
 
         # create new frame for 'search book' page to attach all its widgets
-        self.sb_frame = Frame(self.master, bg="#FFC300", height=700, width=1200)
+        self.sb_frame = Frame(self.master, bg="#FFC300", height=700, width=1400)
 
         # widgets for "search book" label and entry for getting user input
         self.create_label_entry_widgets(
-            frame=self.sb_frame, label_text="Search Book Title", height=0.1
+            frame=self.sb_frame, label_text="Search Book Title", y=0.1
         )
 
         # add a Treeview widget
@@ -181,7 +175,7 @@ class app:
         self.define_treeView_heading("5", 140, "Purchase Price")
         self.define_treeView_heading("6", 223, "Purchase Date")
 
-        self.tree.place(x=130, y=140, width=1400)
+        self.tree.place(x=200, y=140)
 
         self.create_bottom_button_widgets(self.sb_frame, "search_book")
 
@@ -191,11 +185,11 @@ class app:
     def show_diff_widgets_based_on_action_submitted(self):
         # if self.rcr_dropdown.get() == "Reserve Book":
         self.create_label_entry_widgets(
-            frame=self.rcr_frame, label_text="Book ID", height=0.3
+            frame=self.rcr_frame, label_text="Book ID", y=0.3, x1=0.35, x2=0.55
         )
 
         self.create_label_entry_widgets(
-            frame=self.rcr_frame, label_text="Member ID", height=0.2
+            frame=self.rcr_frame, label_text="Member ID", y=0.4, x1=0.35, x2=0.55
         )
 
         # elif self.rcr_dropdown.get() == "Checkout Book":
@@ -240,7 +234,7 @@ class app:
         self.master.title("Checkout Book")
 
         # create new frame for the 'rcr' page to attach all its widgets
-        self.rcr_frame = Frame(self.master, bg="#FFC300", height=700, width=900)
+        self.rcr_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
 
         # widgets
         self.rcr_dropdown = Combobox(
@@ -251,7 +245,7 @@ class app:
         )
         self.rcr_dropdown.current(0)
         self.rcr_dropdown.place(
-            relx=0.53, rely=0.1, anchor=CENTER, height=30, width=500
+            relx=0.45, rely=0.1, anchor=CENTER, height=30, width=500
         )
 
         self.action_submit_btn = Button(
@@ -260,7 +254,7 @@ class app:
             command=self.show_diff_widgets_based_on_action_submitted,
         )
         self.action_submit_btn.place(
-            relx=0.9, rely=0.10, anchor=CENTER, height=30, width=150
+            relx=0.8, rely=0.10, anchor=CENTER, height=30, width=150
         )
 
         self.create_bottom_button_widgets(self.rcr_frame, "rcr_page")
