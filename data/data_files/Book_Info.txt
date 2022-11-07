@@ -1,0 +1,61 @@
+Id,Genre,Title,Author,PurchasePrice£,PurchaseDate
+1,Romance,It Ends with Us,Colleen Hoover,10,07/01/2011
+2,Romance,It Ends with Us,Colleen Hoover,10,08/04/2012
+3,Romance,It Ends with Us,Colleen Hoover,10,10/05/2012
+4,Romance,It Ends with Us,Colleen Hoover,10,13/05/2012
+5,Romance,It Ends with Us,Colleen Hoover,10,14/05/2012
+6,Romance,It Ends with Us,Colleen Hoover,10,14/05/2012
+7,Romance,It Ends with Us,Colleen Hoover,10,14/05/2012
+8,Mystery,Gone Girl,Gillian Flynn,20,24/07/2013
+9,Mystery,Gone Girl,Gillian Flynn,20,25/08/2014
+10,Mystery,Gone Girl,Gillian Flynn,20,26/08/2014
+11,Mystery,Gone Girl,Gillian Flynn,20,26/08/2014
+12,Mystery,Gone Girl,Gillian Flynn,20,26/08/2014
+13,Mystery,Gone Girl,Gillian Flynn,20,26/08/2014
+14,Mystery,Gone Girl,Gillian Flynn,20,26/08/2014
+15,Sci-fi,Dune,Frank Herbert,10,12/04/2016
+16,Sci-fi,Dune,Frank Herbert,10,22/03/2015
+17,Sci-fi,Dune,Frank Herbert,10,26/06/2014
+18,Sci-fi,Dune,Frank Herbert,10,24/04/2012
+19,Thriller,The Grownup,Gillian Flynn,15,15/11/2014
+20,Thriller,The Grownup,Gillian Flynn,15,14/10/2014
+21,Thriller,The Grownup,Gillian Flynn,15,23/12/2015
+22,Thriller,The Grownup,Gillian Flynn,15,05/15/2016
+23,Thriller,The Grownup,Gillian Flynn,15,13/3/2016
+24,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
+25,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
+26,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
+27,Biography,The Autobiography of Malcolm X,Alex Haley X,10,20/07/2010
+28,Romance,The Notebook,Nicholas Sparks,25,12/01/2015
+29,Mystery, Bluebird,Attica Locke,5,24/07/2013
+30,Sci-fi,The Three-Body Problem,Liu Cixin,10,24/07/2013
+31,Thriller,The Silence of the Lambs,Thomas Harris,25,12/01/2015
+32,Biography,Alexander Hamilton,Ron Chernow,20,27/09/2013
+33,Romance,Me Before You,Jojo Moyes,25,14/05/2014
+34,Mystery,The Girl with the Dragon Tattoo,Stieg Larsson,15,04/01/2016
+35,Sci-fi,Snow Crash,Neal Stephenson,10,04/01/2016
+36,Thriller,The Girl on the Train,Paula Hawkins,10,24/07/2013
+37,Biography,The Code Breaker,Walter Isaacson,20,12/01/2015
+38,Romance,Outlander,Diana Gabaldon,20,24/03/2013
+39,Mystery,Da Vinci Code,Dan Brown,20,12/01/2015
+40,Sci-fi,Foundation,Isaac Asimov,15,24/07/2013
+41,Sci-fi,Foundation,Isaac Asimov,15,13/08/2014
+42,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+43,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+44,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+45,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+46,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+47,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+48,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+49,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+50,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+51,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
+52,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+53,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+54,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+55,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+56,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+57,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+58,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+59,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+60,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
