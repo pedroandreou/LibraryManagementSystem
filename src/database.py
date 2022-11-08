@@ -22,14 +22,18 @@ class database:
 
         self.conn = create_connection(self.db_path)
 
-    def execute_query(self, query=None, data=None):
+    def execute_query(self, query=None, book_autocompletion_flag=False):
         try:
             c = self.conn.cursor()
 
-            if query is not None and data is not None:
-                c.execute(query, data)
-            else:
+            if query is not None:
                 c.execute(query)
+
+                if book_autocompletion_flag == True:
+                    # convert list of tuples into a list of strings
+                    book_titles_lst = [item[0] for item in c.fetchall()]
+
+                    return book_titles_lst
         except sqlite3.Error as error:
             print(error)
         finally:
@@ -53,12 +57,12 @@ class database:
                                         {all_cols}
                                     ); """
 
-        self.execute_query(create_table)
+        self.execute_query(query=create_table)
 
     def drop_table(self, table_name):
         drop_table = f"DROP TABLE {table_name};"
 
-        self.execute_query(drop_table)
+        self.execute_query(query=drop_table)
 
     def init_db(self, table_name, file_path=None):
         df = pd.read_csv(file_path, na_values="---")
