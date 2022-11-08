@@ -8,16 +8,7 @@ from bookReturn import return_book
 
 
 class app:
-    def __init__(
-        self,
-        master,
-        conn,
-        bs_img_path,
-        rcr_img_path,
-        frb_img_path,
-        dbs_img_path,
-        erd_img_path,
-    ):
+    def __init__(self, master, conn, data_dir_path):
         self.master = master
         self.conn = conn
         self.master.title("Library Management System")
@@ -27,11 +18,11 @@ class app:
         )
         self.master.geometry("%dx%d+0+0" % (self.w, self.h))
         self.master.configure(background="#FFC300")
-        self.bs_img_path = bs_img_path
-        self.rcr_img_path = rcr_img_path
-        self.frb_img_path = frb_img_path
-        self.dbs_img_path = dbs_img_path
-        self.erd_img_path = erd_img_path
+        self.bs_img_path = f"{data_dir_path}/imgs/bs_img.png"
+        self.rcr_img_path = f"{data_dir_path}/imgs/rcr_img.png"
+        self.frb_img_path = f"{data_dir_path}/imgs/frb_img.png"
+        self.dbs_img_path = f"{data_dir_path}/imgs/dbs_img.png"
+        self.erd_img_path = f"{data_dir_path}/imgs/erd_diagram.png"
         self.main_page()
 
     def show_frame(self, frame):
@@ -55,18 +46,23 @@ class app:
 
         return label.img
 
+    def create_text_widget(self, frame, text, x, y, w):
+        # add Text widget
+        T = Text(frame, **self.get_font_fg_bg())
+        T.tag_configure("center", justify="center")
+        T.insert(END, text)
+        T.tag_add("center", "1.0", END)
+        T.config(state="disabled")
+        T.place(relx=x, rely=y, anchor=CENTER, height=80, width=w)
+
     def main_page(self):
         self.master.title("Library Management System")
 
         self.main_frame = Frame(self.master, bg="#FFC300", height=700, width=900)
 
         # add Text widget
-        T = Text(self.main_frame, **self.get_font_fg_bg())
         text = "\nWelcome to Petros's Library Management System"
-        T.tag_configure("center", justify="center")
-        T.insert(END, text)
-        T.tag_add("center", "1.0", END)
-        T.place(relx=0.53, rely=0.35, anchor=CENTER, height=80, width=700)
+        self.create_text_widget(frame=self.main_frame, text=text, x=0.53, y=0.35, w=700)
 
         self.search_bton = Button(
             self.main_frame,
@@ -134,7 +130,9 @@ class app:
                 self.entry_widget.get(), self.rcr_dropdown.get()
             )
 
-    def create_bottom_button_widgets(self, frame, curr_page, go_back_bton_x=0.35):
+    def create_bottom_button_widgets(
+        self, frame, curr_page, go_back_bton_x=0.35, go_back_bton_y=0.9
+    ):
         self.go_back_bton = Button(
             frame,
             text="Go Back",
@@ -142,7 +140,11 @@ class app:
             command=lambda: [self.hide_frame(frame), self.main_page()],
         )
         self.go_back_bton.place(
-            relx=go_back_bton_x, rely=0.9, anchor=CENTER, height=40, width=220
+            relx=go_back_bton_x,
+            rely=go_back_bton_y,
+            anchor=CENTER,
+            height=40,
+            width=220,
         )
 
         # db_schema page should not have a submit button
@@ -265,7 +267,13 @@ class app:
         self.master.title("DB Schema")
 
         # create new frame for the 'db_schema_page' page to attach all its widgets
-        self.db_schema_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
+        self.db_schema_frame = Frame(self.master, bg="#FFC300", height=800, width=1000)
+
+        # add Text widget
+        text = "\nMy Database Schema"
+        self.create_text_widget(
+            frame=self.db_schema_frame, text=text, x=0.515, y=0.1, w=500
+        )
 
         # create canvas and place it on the frame
         canvas = Canvas(
@@ -280,11 +288,14 @@ class app:
         self.db_schema_frame.logo = ImageTk.PhotoImage(erd_img)
 
         # place the image as canvas image object directly on the canvas
-        canvas.create_image(480, 280, image=self.db_schema_frame.logo, anchor=CENTER)
-        canvas.place(relx=0.5, rely=0.42, width=850, height=550, anchor=CENTER)
+        canvas.create_image(450, 280, image=self.db_schema_frame.logo, anchor=CENTER)
+        canvas.place(relx=0.5, rely=0.55, width=900, height=550, anchor=CENTER)
 
         self.create_bottom_button_widgets(
-            frame=self.db_schema_frame, curr_page="db_schema_page", go_back_bton_x=0.5
+            frame=self.db_schema_frame,
+            curr_page="db_schema_page",
+            go_back_bton_x=0.5,
+            go_back_bton_y=0.96,
         )
 
         # show frame with all its widgets

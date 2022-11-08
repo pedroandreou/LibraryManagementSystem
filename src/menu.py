@@ -130,22 +130,8 @@ def main():
         print("DB already exists; no need for creating our tables from scratch again!")
 
     ## gui ###
-    bs_img_path = f"{data_dir_path}/imgs/bs_img.png"
-    rcr_img_path = f"{data_dir_path}/imgs/rcr_img.png"
-    frb_img_path = f"{data_dir_path}/imgs/frb_img.png"
-    dbs_img_path = f"{data_dir_path}/imgs/dbs_img.png"
-    erd_img_path = f"{data_dir_path}/imgs/erd_diagram.png"
-
     root = Tk()
-    gui.app(
-        root,
-        database.conn,
-        bs_img_path,
-        rcr_img_path,
-        frb_img_path,
-        dbs_img_path,
-        erd_img_path,
-    )
+    gui.app(root, database.conn, data_dir_path)
     root.mainloop()
 
     database.conn.close()
