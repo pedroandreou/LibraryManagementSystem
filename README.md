@@ -11,23 +11,21 @@ def destroy_page_widgets(self):
   for i in self.master.winfo_children():
     i.destroy()
 ```
-I am hiding and making the frames invisible again when appropriate (see at "show_frame" and "hide_frame" function in "gui.py" file)
-- Added images to Tkinter buttons
+I am hiding and turn the frames to visible again when appropriate (see at "show_frame" and "hide_frame" function in "gui.py" file)
+- Created images using draw.io in combination with GIMP software and added them to Tkinter buttons
+- No point of writing dot code for visualising the ERD diagram of my DB. Used DBeaver software to generate the diagram automatically and made the images transparent using the GIMP software
 
 
 # Notes:
 - In case you want to check if the normalization really happens which would require to change some of the data in the txt files; make sure the db file is deleted
 before you run the program again as it won't load the changes. The reason is because I am checking if the db exists and in case it does,
 then I skip the loading part since it only needs to be loaded once. In case of loading the db every single time the program runs, then the data would be always overwritten and the user's changes would be always lost after the end of a session
-- At the start I thought adding all the widgets of a page in a single frame would be ideal. However, only the frame can use .pack() method and the widgets had to use .replace() method; otherwise, would lead to errors. Therefore, my widgets do not get decreased or increased in size based on the window's size
-
 
 # Future Work if had more time:
 - Adding a vertical scroll bar to the TreeView widget for better UX but nevertheless, the user can still scroll without one
 
 ## Recommendations for adding features:
 - popularity about 1 and multiple books (reservation should be taken into consideration, purchase date should be taken into consideration)
-- find how to hide (make invisible) and then visible again a frame
 
 
 # Environment

@@ -1,4 +1,4 @@
-from tkinter import Text, Label, Entry, Button, Frame, messagebox, CENTER, END
+from tkinter import Text, Label, Entry, Button, Frame, Canvas, messagebox, CENTER, END
 from PIL import Image, ImageTk
 from tkinter.ttk import Combobox, Treeview
 from bookSearch import find_books
@@ -8,7 +8,16 @@ from bookReturn import return_book
 
 
 class app:
-    def __init__(self, master, conn, bs_img_path, rcr_img_path, frb_img_path):
+    def __init__(
+        self,
+        master,
+        conn,
+        bs_img_path,
+        rcr_img_path,
+        frb_img_path,
+        dbs_img_path,
+        erd_img_path,
+    ):
         self.master = master
         self.conn = conn
         self.master.title("Library Management System")
@@ -21,13 +30,13 @@ class app:
         self.bs_img_path = bs_img_path
         self.rcr_img_path = rcr_img_path
         self.frb_img_path = frb_img_path
+        self.dbs_img_path = dbs_img_path
+        self.erd_img_path = erd_img_path
         self.main_page()
 
     def show_frame(self, frame):
         #  set border color
-        frame.config(
-            highlightbackground="black", highlightcolor="black", highlightthickness=10
-        )
+        frame.config(highlightbackground="black", highlightthickness=10)
         #  make frame visible to toplevel
         frame.pack(expand=True)
 
@@ -39,8 +48,8 @@ class app:
 
         return {"font": "sans 16 bold", "fg": "white", "bg": "black"}
 
-    def get_img_obj(self, img_path):
-        label = Label(self.master)
+    def get_img_obj(self, frame, img_path):
+        label = Label(frame)
         img = Image.open(img_path)
         label.img = ImageTk.PhotoImage(img)
 
@@ -52,7 +61,7 @@ class app:
         self.main_frame = Frame(self.master, bg="#FFC300", height=700, width=900)
 
         # add Text widget
-        T = Text(self.main_frame, **self.get_font_fg_bg(), height=5, width=52)
+        T = Text(self.main_frame, **self.get_font_fg_bg())
         text = "\nWelcome to Petros's Library Management System"
         T.tag_configure("center", justify="center")
         T.insert(END, text)
@@ -62,7 +71,7 @@ class app:
         self.search_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.bs_img_path),
+            image=self.get_img_obj(self.main_frame, self.bs_img_path),
             command=lambda: [self.hide_frame(self.main_frame), self.search_book_page()],
         )
         self.search_bton.place(relx=0.5, rely=0.55, anchor=CENTER, height=60, width=400)
@@ -71,7 +80,7 @@ class app:
         self.rcr_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.rcr_img_path),
+            image=self.get_img_obj(self.main_frame, self.rcr_img_path),
             command=lambda: [self.hide_frame(self.main_frame), self.rcr_page()],
         )
         self.rcr_bton.place(relx=0.5, rely=0.65, anchor=CENTER, height=60, width=400)
@@ -79,13 +88,26 @@ class app:
         self.rec_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.frb_img_path),
+            image=self.get_img_obj(self.main_frame, self.frb_img_path),
             command=lambda: [
                 self.hide_frame(self.main_frame),
                 self.recommendation_page(),
             ],
         )
         self.rec_bton.place(relx=0.5, rely=0.75, anchor=CENTER, height=60, width=400)
+
+        self.db_schema_bton = Button(
+            self.main_frame,
+            **self.get_font_fg_bg(),
+            image=self.get_img_obj(self.main_frame, self.dbs_img_path),
+            command=lambda: [
+                self.hide_frame(self.main_frame),
+                self.db_schema_page(),
+            ],
+        )
+        self.db_schema_bton.place(
+            relx=0.5, rely=0.85, anchor=CENTER, height=60, width=400
+        )
 
         self.show_frame(self.main_frame)
 
@@ -112,7 +134,7 @@ class app:
                 self.entry_widget.get(), self.rcr_dropdown.get()
             )
 
-    def create_bottom_button_widgets(self, frame, curr_page):
+    def create_bottom_button_widgets(self, frame, curr_page, go_back_bton_x=0.35):
         self.go_back_bton = Button(
             frame,
             text="Go Back",
@@ -120,16 +142,20 @@ class app:
             command=lambda: [self.hide_frame(frame), self.main_page()],
         )
         self.go_back_bton.place(
-            relx=0.35, rely=0.9, anchor=CENTER, height=40, width=220
+            relx=go_back_bton_x, rely=0.9, anchor=CENTER, height=40, width=220
         )
 
-        self.submit_bton = Button(
-            frame,
-            text="Submit",
-            **self.get_font_fg_bg(),
-            command=self.check_in_which_page_submit_button_was_pressed(curr_page),
-        )
-        self.submit_bton.place(relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220)
+        # db_schema page should not have a submit button
+        if curr_page != "db_schema_page":
+            self.submit_bton = Button(
+                frame,
+                text="Submit",
+                **self.get_font_fg_bg(),
+                command=self.check_in_which_page_submit_button_was_pressed(curr_page),
+            )
+            self.submit_bton.place(
+                relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220
+            )
 
     def define_treeView_heading(self, order_num, width_num, col_name):
         self.tree.column(
@@ -225,4 +251,41 @@ class app:
         self.show_frame(self.rcr_frame)
 
     def recommendation_page(self):
-        print("Recommendation Page")
+        self.master.title("Recommended Books")
+
+        # create new frame for the 'recommendation_page' page to attach all its widgets
+        self.rec_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
+
+        self.create_bottom_button_widgets(frame=self.rec_frame, curr_page="rec_page")
+
+        # show frame with all its widgets
+        self.show_frame(self.rec_frame)
+
+    def db_schema_page(self):
+        self.master.title("DB Schema")
+
+        # create new frame for the 'db_schema_page' page to attach all its widgets
+        self.db_schema_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
+
+        # create canvas and place it on the frame
+        canvas = Canvas(
+            self.db_schema_frame,
+            bg="#FFC300",
+            highlightbackground="white",
+            highlightthickness=5,
+        )
+
+        # load img that shows the db structure
+        erd_img = Image.open(self.erd_img_path)
+        self.db_schema_frame.logo = ImageTk.PhotoImage(erd_img)
+
+        # place the image as canvas image object directly on the canvas
+        canvas.create_image(480, 280, image=self.db_schema_frame.logo, anchor=CENTER)
+        canvas.place(relx=0.5, rely=0.42, width=850, height=550, anchor=CENTER)
+
+        self.create_bottom_button_widgets(
+            frame=self.db_schema_frame, curr_page="db_schema_page", go_back_bton_x=0.5
+        )
+
+        # show frame with all its widgets
+        self.show_frame(self.db_schema_frame)
