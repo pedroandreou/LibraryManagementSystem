@@ -14,6 +14,7 @@ def destroy_page_widgets(self):
 I am hiding and turn the frames to visible again when appropriate (see at "show_frame" and "hide_frame" function in "gui.py" file)
 - Created images using draw.io in combination with GIMP software and added them to Tkinter buttons
 - No point of writing dot code for visualising the ERD diagram of my DB. Used DBeaver software to generate the diagram automatically and made the images transparent using the GIMP software
+- Autocomplete of suggested book titles feature added to the "Search Book" page using the ttkwidgets library
 
 
 # Notes:

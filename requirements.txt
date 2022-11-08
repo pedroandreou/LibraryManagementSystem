@@ -21,4 +21,5 @@ pytz==2022.5
 PyYAML==6.0
 six==1.16.0
 toml==0.10.2
+ttkwidgets==0.12.1
 virtualenv==20.16.5

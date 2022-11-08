@@ -1,4 +1,5 @@
 from tkinter import Text, Label, Entry, Button, Frame, Canvas, messagebox, CENTER, END
+from ttkwidgets.autocomplete import AutocompleteEntry
 from PIL import Image, ImageTk
 from tkinter.ttk import Combobox, Treeview
 from bookSearch import find_books
@@ -8,7 +9,7 @@ from bookReturn import return_book
 
 
 class app:
-    def __init__(self, master, conn, data_dir_path):
+    def __init__(self, master, conn, data_dir_path, book_titles_lst):
         self.master = master
         self.conn = conn
         self.master.title("Library Management System")
@@ -18,11 +19,15 @@ class app:
         )
         self.master.geometry("%dx%d+0+0" % (self.w, self.h))
         self.master.configure(background="#FFC300")
+
         self.bs_img_path = f"{data_dir_path}/imgs/bs_img.png"
         self.rcr_img_path = f"{data_dir_path}/imgs/rcr_img.png"
         self.frb_img_path = f"{data_dir_path}/imgs/frb_img.png"
         self.dbs_img_path = f"{data_dir_path}/imgs/dbs_img.png"
         self.erd_img_path = f"{data_dir_path}/imgs/erd_diagram.png"
+
+        self.book_titles_lst = book_titles_lst
+
         self.main_page()
 
     def show_frame(self, frame):
@@ -107,12 +112,27 @@ class app:
 
         self.show_frame(self.main_frame)
 
-    def create_label_entry_widgets(self, frame, label_text, y, x1=0.48, x2=0.65):
+    def create_label_entry_widgets(
+        self, frame, label_text, y, x1=0.48, x2=0.65, autocomplete_widget_flag=False
+    ):
         self.entry_label = Label(frame, text=label_text, font=("calibre", 10, "bold"))
         self.entry_label.place(relx=x1, rely=y, anchor=CENTER, height=40, width=200)
 
-        self.entry_widget = Entry(frame, font=("calibre", 10, "normal"))
-        self.entry_widget.place(relx=x2, rely=y, anchor=CENTER, height=40, width=220)
+        if autocomplete_widget_flag == False:
+            self.entry_widget = Entry(frame, font=("calibre", 10, "normal"))
+            self.entry_widget.place(
+                relx=x2, rely=y, anchor=CENTER, height=40, width=220
+            )
+        # Search Book page
+        else:
+            self.entry_widget = AutocompleteEntry(
+                frame,
+                font=("calibre", 10, "normal"),
+                completevalues=self.book_titles_lst,
+            )
+            self.entry_widget.place(
+                relx=x2, rely=y, anchor=CENTER, height=40, width=220
+            )
 
     def call_appropriate_rcr_action(self, member_id, action_submitted):
         if action_submitted == "Reserve Book":
@@ -173,7 +193,10 @@ class app:
 
         # widgets for "search book" label and entry for getting user input
         self.create_label_entry_widgets(
-            frame=self.sb_frame, label_text="Search Book Title", y=0.1
+            frame=self.sb_frame,
+            label_text="Search Book Title",
+            y=0.1,
+            autocomplete_widget_flag=True,
         )
 
         # add a Treeview widget

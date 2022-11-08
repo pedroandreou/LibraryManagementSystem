@@ -129,9 +129,14 @@ def main():
     else:
         print("DB already exists; no need for creating our tables from scratch again!")
 
+    # create a list of all the book titles that will be used for autocompletion
+    book_titles_lst = database.execute_query(
+        query="SELECT BookTitleRef FROM BookTitle", book_autocompletion_flag=True
+    )
+
     ## gui ###
     root = Tk()
-    gui.app(root, database.conn, data_dir_path)
+    gui.app(root, database.conn, data_dir_path, book_titles_lst)
     root.mainloop()
 
     database.conn.close()
