@@ -1,8 +1,9 @@
 from tkinter import Text, Label, Entry, Button, Frame, Canvas, messagebox, CENTER, END
+from tkinter.ttk import Combobox, Treeview, Notebook, Style
 from ttkwidgets.autocomplete import AutocompleteEntry
 from PIL import Image, ImageTk
-from tkinter.ttk import Combobox, Treeview
 from bookSearch import find_books
+from bookSelect import recommend_books
 from bookReserve import reserve_book
 from bookCheckout import checkout_book
 from bookReturn import return_book
@@ -10,23 +11,78 @@ from bookReturn import return_book
 
 class app:
     def __init__(self, master, conn, data_dir_path, book_titles_lst):
-        self.master = master
-        self.conn = conn
-        self.master.title("Library Management System")
-        self.w, self.h = (
-            self.master.winfo_screenwidth(),
-            self.master.winfo_screenheight(),
-        )
-        self.master.geometry("%dx%d+0+0" % (self.w, self.h))
-        self.master.configure(background="#FFC300")
+        def create_window(master):
+            self.master = master
+            self.master.title("Library Management System")
+            self.master.configure(background="#FFC300")
 
-        self.bs_img_path = f"{data_dir_path}/imgs/bs_img.png"
-        self.rcr_img_path = f"{data_dir_path}/imgs/rcr_img.png"
-        self.frb_img_path = f"{data_dir_path}/imgs/frb_img.png"
-        self.dbs_img_path = f"{data_dir_path}/imgs/dbs_img.png"
-        self.erd_img_path = f"{data_dir_path}/imgs/erd_diagram.png"
+        create_window(master)
+
+        self.conn = conn
+
+        def set_window_geometry():
+            self.w, self.h = (
+                self.master.winfo_screenwidth(),
+                self.master.winfo_screenheight(),
+            )
+            self.master.geometry("%dx%d+0+0" % (self.w, self.h))
+
+        set_window_geometry()
+
+        def set_img_paths(data_dir_path):
+            self.bs_img_path = f"{data_dir_path}/imgs/bs_img.png"
+            self.rcr_img_path = f"{data_dir_path}/imgs/rcr_img.png"
+            self.frb_img_path = f"{data_dir_path}/imgs/frb_img.png"
+            self.dbs_img_path = f"{data_dir_path}/imgs/dbs_img.png"
+            self.erd_img_path = f"{data_dir_path}/imgs/erd_diagram.png"
+
+        set_img_paths(data_dir_path)
 
         self.book_titles_lst = book_titles_lst
+
+        def set_colors_to__widgets():
+            self.style = Style()
+
+            self.style.theme_create(
+                "#FFC300",
+                settings={
+                    "TCombobox": {
+                        "configure": {
+                            "background": "black",
+                            "fieldbackground": "black",
+                            "foreground": "white",
+                        },
+                    },
+                    "Treeview": {
+                        "configure": {
+                            "background": "black",
+                            "fieldbackground": "black",
+                            "foreground": "white",
+                        },
+                    },
+                    "TNotebook": {
+                        "configure": {
+                            "background": "black",
+                            "tabmargins": [2, 5, 0, 0],
+                        }
+                    },
+                    "TNotebook.Tab": {
+                        "configure": {
+                            "background": "black",
+                            "foreground": "white",
+                            "padding": [10, 2],
+                            "font": "white",
+                        },
+                        "map": {
+                            "background": [("selected", "red")],
+                            "expand": [("selected", [1, 1, 1, 0])],
+                        },
+                    },
+                },
+            )
+            self.style.theme_use("#FFC300")
+
+        set_colors_to__widgets()
 
         self.main_page()
 
@@ -44,8 +100,8 @@ class app:
 
         return {"font": "sans 16 bold", "fg": "white", "bg": "black"}
 
-    def get_img_obj(self, frame, img_path):
-        label = Label(frame)
+    def get_img_obj(self, img_path):
+        label = Label(self.main_frame)
         img = Image.open(img_path)
         label.img = ImageTk.PhotoImage(img)
 
@@ -72,7 +128,7 @@ class app:
         self.search_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.main_frame, self.bs_img_path),
+            image=self.get_img_obj(self.bs_img_path),
             command=lambda: [self.hide_frame(self.main_frame), self.search_book_page()],
         )
         self.search_bton.place(relx=0.5, rely=0.55, anchor=CENTER, height=60, width=400)
@@ -81,7 +137,7 @@ class app:
         self.rcr_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.main_frame, self.rcr_img_path),
+            image=self.get_img_obj(self.rcr_img_path),
             command=lambda: [self.hide_frame(self.main_frame), self.rcr_page()],
         )
         self.rcr_bton.place(relx=0.5, rely=0.65, anchor=CENTER, height=60, width=400)
@@ -89,7 +145,7 @@ class app:
         self.rec_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.main_frame, self.frb_img_path),
+            image=self.get_img_obj(self.frb_img_path),
             command=lambda: [
                 self.hide_frame(self.main_frame),
                 self.recommendation_page(),
@@ -100,7 +156,7 @@ class app:
         self.db_schema_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.main_frame, self.dbs_img_path),
+            image=self.get_img_obj(self.dbs_img_path),
             command=lambda: [
                 self.hide_frame(self.main_frame),
                 self.db_schema_page(),
@@ -149,6 +205,8 @@ class app:
             return lambda: self.call_appropriate_rcr_action(
                 self.entry_widget.get(), self.rcr_dropdown.get()
             )
+        elif curr_page == "rec_page":
+            return lambda: recommend_books(self.conn)
 
     def create_bottom_button_widgets(
         self, frame, curr_page, go_back_bton_x=0.35, go_back_bton_y=0.9
@@ -264,6 +322,8 @@ class app:
         self.action_submit_btn = Button(
             self.rcr_frame,
             text="Submit Action",
+            bg="black",
+            fg="white",
             command=self.show_id_label_entry_widgets,
         )
         self.action_submit_btn.place(
@@ -280,6 +340,18 @@ class app:
 
         # create new frame for the 'recommendation_page' page to attach all its widgets
         self.rec_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
+
+        # add Notebook widget
+        notebook = Notebook(self.rec_frame)
+        notebook.place(relx=0.55, rely=0.55, width=650, height=300, anchor=CENTER)
+
+        # add tabs to the Notebook widget
+        tab1 = Frame(notebook)
+        notebook.add(tab1, text="Most Checkouts")
+        tab2 = Frame(notebook)
+        notebook.add(tab2, text="Number of copies")
+        tab3 = Frame(notebook)
+        notebook.add(tab3, text="Total available minutes")
 
         self.create_bottom_button_widgets(frame=self.rec_frame, curr_page="rec_page")
 

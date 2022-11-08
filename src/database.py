@@ -280,7 +280,6 @@ class database:
         data = {
             "TransactionId": loanReservationHistory_df["TransactionId"],
             "BookId": loanReservationHistory_df["BookId"],
-            "BookCopyKey": loanReservationHistory_df["BookId"],
             "TransactionType": np.nan,
             "IsCheckedOut": np.nan,
             "CheckedOutMemberId": np.nan,
@@ -296,7 +295,6 @@ class database:
             columns=[
                 "TransactionId",
                 "BookId",
-                "BookCopyKey",
                 "TransactionType",
                 "IsCheckedOut",
                 "CheckedOutMemberId",
@@ -361,7 +359,7 @@ class database:
                                 endRecordDate=np.nan,
                                 isActive=1,
                             )
-                        # otherwise, the reservation will be considered that it has already been done in the past => main transaction type will be Checkout
+                        # otherwise, the reservation will be considered that it has already been done in the past =>  transaction type will be Checkout
                         else:
                             last_ReservedMemberId = (
                                 self.findLastMemberId_and_deactivateLastTransaction(

@@ -1,5 +1,4 @@
 import sqlite3
-from tkinter.constants import END
 
 
 def find_books(text, conn, tree):

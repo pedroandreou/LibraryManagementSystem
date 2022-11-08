@@ -95,7 +95,6 @@ def main():
             "Transactions",
             "TransactionId PRIMARY KEY",
             "BookId INTEGER",
-            "BookCopyKey INTEGER",
             "TransactionType TEXT",
             "IsCheckedOut INTEGEGER",
             "CheckedOutMemberId INTEGER",
@@ -106,7 +105,6 @@ def main():
             "EndRecordDate DATE",
             "IsActive INTEGER",
             "FOREIGN KEY (BookId) REFERENCES BookInventory(BookId)",
-            "FOREIGN KEY (BookCopyKey) REFERENCES BookCopies(BookCopyKey)",
         ]
 
         create_tables = [
