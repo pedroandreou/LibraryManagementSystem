@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime, timedelta
 
 
-class database:
+class Database:
     def __init__(self, db_path):
         self.db_path = db_path
 

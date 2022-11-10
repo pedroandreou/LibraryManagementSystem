@@ -1,15 +1,26 @@
-from tkinter import Text, Label, Entry, Button, Frame, Canvas, messagebox, CENTER, END
+from tkinter import (
+    Text,
+    Label,
+    Entry,
+    Button,
+    Frame,
+    Canvas,
+    messagebox,
+    Message,
+    CENTER,
+    END,
+)
 from tkinter.ttk import Combobox, Treeview, Notebook, Style
 from ttkwidgets.autocomplete import AutocompleteEntry
 from PIL import Image, ImageTk
 from bookSearch import find_books
-from bookSelect import recommend_books
+from bookSelect import BookRecommendationSystem
 from bookReserve import reserve_book
 from bookCheckout import checkout_book
 from bookReturn import return_book
 
 
-class app:
+class App:
     def __init__(self, master, conn, data_dir_path, book_titles_lst):
         def create_window(master):
             self.master = master
@@ -47,13 +58,6 @@ class app:
                 "#FFC300",
                 settings={
                     "TCombobox": {
-                        "configure": {
-                            "background": "black",
-                            "fieldbackground": "black",
-                            "foreground": "white",
-                        },
-                    },
-                    "Treeview": {
                         "configure": {
                             "background": "black",
                             "fieldbackground": "black",
@@ -100,13 +104,6 @@ class app:
 
         return {"font": "sans 16 bold", "fg": "white", "bg": "black"}
 
-    def get_img_obj(self, img_path):
-        label = Label(self.main_frame)
-        img = Image.open(img_path)
-        label.img = ImageTk.PhotoImage(img)
-
-        return label.img
-
     def create_text_widget(self, frame, text, x, y, w):
         # add Text widget
         T = Text(frame, **self.get_font_fg_bg())
@@ -117,6 +114,13 @@ class app:
         T.place(relx=x, rely=y, anchor=CENTER, height=80, width=w)
 
     def main_page(self):
+        def get_img_obj(img_path):
+            label = Label(self.main_frame)
+            img = Image.open(img_path)
+            label.img = ImageTk.PhotoImage(img)
+
+            return label.img
+
         self.master.title("Library Management System")
 
         self.main_frame = Frame(self.master, bg="#FFC300", height=700, width=900)
@@ -128,7 +132,7 @@ class app:
         self.search_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.bs_img_path),
+            image=get_img_obj(self.bs_img_path),
             command=lambda: [self.hide_frame(self.main_frame), self.search_book_page()],
         )
         self.search_bton.place(relx=0.5, rely=0.55, anchor=CENTER, height=60, width=400)
@@ -137,7 +141,7 @@ class app:
         self.rcr_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.rcr_img_path),
+            image=get_img_obj(self.rcr_img_path),
             command=lambda: [self.hide_frame(self.main_frame), self.rcr_page()],
         )
         self.rcr_bton.place(relx=0.5, rely=0.65, anchor=CENTER, height=60, width=400)
@@ -145,7 +149,7 @@ class app:
         self.rec_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.frb_img_path),
+            image=get_img_obj(self.frb_img_path),
             command=lambda: [
                 self.hide_frame(self.main_frame),
                 self.recommendation_page(),
@@ -156,7 +160,7 @@ class app:
         self.db_schema_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
-            image=self.get_img_obj(self.dbs_img_path),
+            image=get_img_obj(self.dbs_img_path),
             command=lambda: [
                 self.hide_frame(self.main_frame),
                 self.db_schema_page(),
@@ -190,26 +194,49 @@ class app:
                 relx=x2, rely=y, anchor=CENTER, height=40, width=220
             )
 
-    def call_appropriate_rcr_action(self, member_id, action_submitted):
-        if action_submitted == "Reserve Book":
-            reserve_book()
-        elif action_submitted == "Checkout Book":
-            checkout_book()
-        else:
-            return_book()
+    def check_in_which_page_submit_button_was_pressed(
+        self, curr_page, recommendation_tab=None
+    ):
+        def call_appropriate_rcr_action(member_id, action_submitted):
+            if action_submitted == "Reserve Book":
+                reserve_book()
+            elif action_submitted == "Checkout Book":
+                checkout_book()
+            else:
+                return_book()
 
-    def check_in_which_page_submit_button_was_pressed(self, curr_page):
         if curr_page == "search_book":
             return lambda: find_books(self.entry_widget.get(), self.conn, self.tree)
         elif curr_page == "rcr_page":
-            return lambda: self.call_appropriate_rcr_action(
+            return lambda: call_appropriate_rcr_action(
                 self.entry_widget.get(), self.rcr_dropdown.get()
             )
         elif curr_page == "rec_page":
-            return lambda: recommend_books(self.conn)
+            if recommendation_tab == "Most Checkouts":
+
+                return lambda: self.bookRecommendationSystemObject.most_checkouts(
+                    self.tree
+                )
+
+            elif recommendation_tab == "Number of copies":
+                return lambda: self.bookRecommendationSystemObject.number_of_copies(
+                    self.tree
+                )
+
+            elif recommendation_tab == "Total available minutes":
+                return (
+                    lambda: self.bookRecommendationSystemObject.total_available_minutes(
+                        self.tree
+                    )
+                )
 
     def create_bottom_button_widgets(
-        self, frame, curr_page, go_back_bton_x=0.35, go_back_bton_y=0.9
+        self,
+        frame,
+        curr_page,
+        recommendation_tab=None,
+        go_back_bton_x=0.35,
+        go_back_bton_y=0.9,
     ):
         self.go_back_bton = Button(
             frame,
@@ -225,17 +252,32 @@ class app:
             width=220,
         )
 
-        # db_schema page should not have a submit button
+        # "db_schema" page should not have a submit button
         if curr_page != "db_schema_page":
             self.submit_bton = Button(
                 frame,
                 text="Submit",
                 **self.get_font_fg_bg(),
-                command=self.check_in_which_page_submit_button_was_pressed(curr_page),
+                command=self.check_in_which_page_submit_button_was_pressed(
+                    curr_page, recommendation_tab
+                ),
             )
             self.submit_bton.place(
                 relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220
             )
+
+    def change_Treeview_configs(self, frame, columns, h, bg, fieldbg, fg):
+        self.tree = Treeview(
+            frame,
+            columns=[*columns],
+            show="headings",
+            height=h,
+        )
+
+        # change color to the Treeview
+        self.style.configure(
+            "Treeview", background=bg, fieldbackground=fieldbg, foreground=fg
+        )
 
     def define_treeView_heading(self, order_num, width_num, col_name):
         self.tree.column(
@@ -257,20 +299,26 @@ class app:
             autocomplete_widget_flag=True,
         )
 
+        # define Treeview headings
+        columns = [
+            "BookId",
+            "Genre",
+            "Title",
+            "Book Author",
+            "Purchase Price",
+            "Purchase Date",
+        ]
+
         # add a Treeview widget
-        self.tree = Treeview(
-            self.sb_frame,
-            columns=[
-                "BookId",
-                "Genre",
-                "Title",
-                "Book Author",
-                "Purchase Price",
-                "Purchase Date",
-            ],
-            show="headings",
-            height=20,
+        self.change_Treeview_configs(
+            frame=self.sb_frame,
+            columns=columns,
+            h=20,
+            bg="black",
+            fieldbg="black",
+            fg="white",
         )
+
         # define headings
         self.define_treeView_heading("1", 120, "Id")
         self.define_treeView_heading("2", 140, "Genre")
@@ -336,24 +384,96 @@ class app:
         self.show_frame(self.rcr_frame)
 
     def recommendation_page(self):
+        def on_tab_change(event):
+            def add_treeView_to_notebookTab(frame, color, cols, pos_x, w):
+
+                # add a Treeview widget
+                self.change_Treeview_configs(
+                    frame=frame, columns=cols, h=10, bg=color, fieldbg=color, fg="black"
+                )
+
+                # define headings
+                heading_position = 120
+                for i, text in enumerate(cols):
+                    self.define_treeView_heading(str(i + 1), heading_position, text)
+                    heading_position += 45
+
+                self.tree.place(x=pos_x, y=20, width=w)
+
+            self.tab = event.widget.tab("current")["text"]
+
+            if self.tab == "Most Checkouts":
+                add_treeView_to_notebookTab(
+                    frame=self.tab1,
+                    color="#33FFF9",
+                    cols=["BookId", "Num of Checkouts"],
+                    pos_x=200,
+                    w=280,
+                )
+            elif self.tab == "Number of copies":
+                add_treeView_to_notebookTab(
+                    frame=self.tab2,
+                    color="#7DFF33",
+                    cols=["BookId", "Num of Checkouts", "Num of Copies"],
+                    pos_x=80,
+                    w=490,
+                )
+            elif self.tab == "Total available minutes":
+                add_treeView_to_notebookTab(
+                    frame=self.tab3,
+                    color="#FF33D4",
+                    cols=["BookId", "Num of Checkouts", "Num of total available mins"],
+                    pos_x=80,
+                    w=490,
+                )
+
+            self.create_bottom_button_widgets(
+                frame=self.rec_frame, curr_page="rec_page", recommendation_tab=self.tab
+            )
+
         self.master.title("Recommended Books")
 
         # create new frame for the 'recommendation_page' page to attach all its widgets
         self.rec_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
 
+        # add Text widget
+        text = "\nFind recommended books based on the below conditions"
+        self.create_text_widget(frame=self.rec_frame, text=text, x=0.55, y=0.10, w=700)
+
+        # add Message widget
+        bullet_point1 = "\u2022 Most Checkouts only"
+        bullet_point2 = "\u2022 Most Checkouts along with number of copies"
+        bullet_point3 = "\u2022 Most Checkouts along with Total available minutes"
+        msg = Message(
+            self.rec_frame,
+            text="%s\n%s\n%s" % (bullet_point1, bullet_point2, bullet_point3),
+            background="white",
+            width=500,
+            anchor="w",
+        )
+        msg.place(x=375, y=125)
+
         # add Notebook widget
         notebook = Notebook(self.rec_frame)
         notebook.place(relx=0.55, rely=0.55, width=650, height=300, anchor=CENTER)
 
-        # add tabs to the Notebook widget
-        tab1 = Frame(notebook)
-        notebook.add(tab1, text="Most Checkouts")
-        tab2 = Frame(notebook)
-        notebook.add(tab2, text="Number of copies")
-        tab3 = Frame(notebook)
-        notebook.add(tab3, text="Total available minutes")
+        # create tab 1 to the notebook
+        self.tab1 = Frame(notebook, bg="black")
+        notebook.add(self.tab1, text="Most Checkouts")
 
-        self.create_bottom_button_widgets(frame=self.rec_frame, curr_page="rec_page")
+        # create tab 2 to the notebook
+        self.tab2 = Frame(notebook, bg="black")
+        notebook.add(self.tab2, text="Number of copies")
+
+        # add tab 3 to the notebook
+        self.tab3 = Frame(notebook, bg="black")
+        notebook.add(self.tab3, text="Total available minutes")
+
+        # create object for book recommendation system
+        self.bookRecommendationSystemObject = BookRecommendationSystem(self.conn)
+
+        # change configurations of Treeview when the tab is changed
+        notebook.bind("<<NotebookTabChanged>>", on_tab_change)
 
         # show frame with all its widgets
         self.show_frame(self.rec_frame)
