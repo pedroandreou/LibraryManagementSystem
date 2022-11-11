@@ -2,17 +2,18 @@ from treeView import TreeViewClass
 
 
 class BookRecommendationSystem:
-    def __init__(self, conn):
-        self.conn = conn
+    def __init__(self, databaseObj):
+        self.databaseObj = databaseObj
+        self.conn = self.databaseObj.conn
 
     def most_checkouts(self, tree):
-        recommend_query = f"""SELECT BookId, COUNT(BookId)
+        most_checkouts_query = f"""SELECT BookId, COUNT(BookId)
    FROM Transactions
    WHERE TransactionType = 'Checkout'
    GROUP BY BookId
    LIMIT 5;"""
 
-        TreeViewClass(self.conn, tree, recommend_query)
+        TreeViewClass(self.databaseObj, tree, most_checkouts_query)
 
     def number_of_copies(self, tree):
         print("Number of copies")

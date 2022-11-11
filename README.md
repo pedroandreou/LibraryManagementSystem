@@ -22,6 +22,7 @@ I am hiding and turn the frames to visible again when appropriate (see at "show_
 - In case you want to check if the normalization really happens which would require to change some of the data in the txt files; make sure the db file is deleted
 before you run the program again as it won't load the changes. The reason is because I am checking if the db exists and in case it does,
 then I skip the loading part since it only needs to be loaded once. In case of loading the db every single time the program runs, then the data would be always overwritten and the user's changes would be always lost after the end of a session
+- Documentation for what each line of the ERD diagram represents added in the ./data/imgs directory
 
 
 # Future Work if had more time:

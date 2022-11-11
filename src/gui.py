@@ -13,7 +13,7 @@ from tkinter import (
 from tkinter.ttk import Combobox, Treeview, Notebook, Style
 from ttkwidgets.autocomplete import AutocompleteEntry
 from PIL import Image, ImageTk
-from bookSearch import find_books
+from bookSearch import SearchBookTitle
 from bookSelect import BookRecommendationSystem
 from bookReserve import reserve_book
 from bookCheckout import checkout_book
@@ -21,7 +21,9 @@ from bookReturn import return_book
 
 
 class App:
-    def __init__(self, master, conn, data_dir_path, book_titles_lst):
+    def __init__(
+        self, master, databaseObj, data_dir_path, book_titles_lst, book_ids_lst
+    ):
         def create_window(master):
             self.master = master
             self.master.title("Library Management System")
@@ -29,7 +31,8 @@ class App:
 
         create_window(master)
 
-        self.conn = conn
+        self.databaseObj = databaseObj
+        self.conn = self.databaseObj.conn
 
         def set_window_geometry():
             self.w, self.h = (
@@ -50,6 +53,7 @@ class App:
         set_img_paths(data_dir_path)
 
         self.book_titles_lst = book_titles_lst
+        self.book_ids_lst = book_ids_lst
 
         def set_colors_to__widgets():
             self.style = Style()
@@ -183,6 +187,8 @@ class App:
             self.entry_widget.place(
                 relx=x2, rely=y, anchor=CENTER, height=40, width=220
             )
+
+            return self.entry_widget
         # Search Book page
         else:
             self.entry_widget = AutocompleteEntry(
@@ -197,7 +203,29 @@ class App:
     def check_in_which_page_submit_button_was_pressed(
         self, curr_page, recommendation_tab=None
     ):
-        def call_appropriate_rcr_action(member_id, action_submitted):
+        def call_appropriate_rcr_action():
+            bookID = self.book_id.get()
+            memberID = self.member_id.get()
+
+            try:
+                bookID = int(bookID)
+                memberID = int(memberID)
+            except ValueError:
+                messagebox.showerror("Error", "The IDs need to be integers")
+                return
+
+            if (memberID < 1000 or memberID > 9999) and bookID not in self.book_ids_lst:
+                messagebox.showerror("Error", "Both provided IDs are invalid")
+                return
+            elif memberID < 1000 or memberID > 9999:
+                messagebox.showerror("Error", "The provided Member ID is invalid")
+                return
+            elif bookID not in self.book_ids_lst:
+                messagebox.showerror("Error", "The provided Book ID is invalid")
+                return
+
+            action_submitted = self.rcr_dropdown.get()
+
             if action_submitted == "Reserve Book":
                 reserve_book()
             elif action_submitted == "Checkout Book":
@@ -206,11 +234,11 @@ class App:
                 return_book()
 
         if curr_page == "search_book":
-            return lambda: find_books(self.entry_widget.get(), self.conn, self.tree)
-        elif curr_page == "rcr_page":
-            return lambda: call_appropriate_rcr_action(
-                self.entry_widget.get(), self.rcr_dropdown.get()
+            return lambda: self.SearchBookTitleObject.find_books(
+                self.entry_widget.get()
             )
+        elif curr_page == "rcr_page":
+            return lambda: call_appropriate_rcr_action()
         elif curr_page == "rec_page":
             if recommendation_tab == "Most Checkouts":
 
@@ -329,6 +357,9 @@ class App:
 
         self.tree.place(x=200, y=140)
 
+        # create instance of the SearchBookTitle class
+        self.SearchBookTitleObject = SearchBookTitle(self.databaseObj, self.tree)
+
         self.create_bottom_button_widgets(frame=self.sb_frame, curr_page="search_book")
 
         # show frame with all its widgets
@@ -341,11 +372,11 @@ class App:
 {self.rcr_dropdown.get().split(' ')[0]} a {self.rcr_dropdown.get().split(' ')[1]}!""",
         )
 
-        self.create_label_entry_widgets(
+        self.book_id = self.create_label_entry_widgets(
             frame=self.rcr_frame, label_text="Book ID", y=0.3, x1=0.35, x2=0.55
         )
 
-        self.create_label_entry_widgets(
+        self.member_id = self.create_label_entry_widgets(
             frame=self.rcr_frame, label_text="Member ID", y=0.4, x1=0.35, x2=0.55
         )
 
@@ -389,7 +420,7 @@ class App:
 
                 # add a Treeview widget
                 self.change_Treeview_configs(
-                    frame=frame, columns=cols, h=10, bg=color, fieldbg=color, fg="black"
+                    frame=frame, columns=cols, h=10, bg=color, fieldbg=color, fg="white"
                 )
 
                 # define headings
@@ -405,7 +436,7 @@ class App:
             if self.tab == "Most Checkouts":
                 add_treeView_to_notebookTab(
                     frame=self.tab1,
-                    color="#33FFF9",
+                    color="red",
                     cols=["BookId", "Num of Checkouts"],
                     pos_x=200,
                     w=280,
@@ -413,7 +444,7 @@ class App:
             elif self.tab == "Number of copies":
                 add_treeView_to_notebookTab(
                     frame=self.tab2,
-                    color="#7DFF33",
+                    color="red",
                     cols=["BookId", "Num of Checkouts", "Num of Copies"],
                     pos_x=80,
                     w=490,
@@ -421,7 +452,7 @@ class App:
             elif self.tab == "Total available minutes":
                 add_treeView_to_notebookTab(
                     frame=self.tab3,
-                    color="#FF33D4",
+                    color="red",
                     cols=["BookId", "Num of Checkouts", "Num of total available mins"],
                     pos_x=80,
                     w=490,
@@ -470,7 +501,7 @@ class App:
         notebook.add(self.tab3, text="Total available minutes")
 
         # create object for book recommendation system
-        self.bookRecommendationSystemObject = BookRecommendationSystem(self.conn)
+        self.bookRecommendationSystemObject = BookRecommendationSystem(self.databaseObj)
 
         # change configurations of Treeview when the tab is changed
         notebook.bind("<<NotebookTabChanged>>", on_tab_change)

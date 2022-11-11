@@ -129,12 +129,19 @@ def main():
 
     # create a list of all the book titles that will be used for autocompletion
     book_titles_lst = databaseObj.execute_query(
-        query="SELECT BookTitleRef FROM BookTitle", book_autocompletion_flag=True
+        query="SELECT BookTitleRef FROM BookTitle;",
+        get_results=True,
+        get_first_item=True,
+    )
+
+    # create a list of all the book ids to check if the user has provided one that exists
+    book_ids_lst = databaseObj.execute_query(
+        query="SELECT BookId FROM BookInventory;", get_results=True, get_first_item=True
     )
 
     ## gui ###
     root = Tk()
-    gui.App(root, databaseObj.conn, data_dir_path, book_titles_lst)
+    gui.App(root, databaseObj, data_dir_path, book_titles_lst, book_ids_lst)
     root.mainloop()
 
     databaseObj.conn.close()

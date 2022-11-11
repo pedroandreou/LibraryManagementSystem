@@ -1,9 +1,7 @@
-import sqlite3
-
-
 class TreeViewClass:
-    def __init__(self, conn, tree, query):
-        self.conn = conn
+    def __init__(self, databaseObj, tree, query):
+        self.databaseObj = databaseObj
+        self.conn = self.databaseObj.conn
         self.tree = tree
         self.query = query
 
@@ -17,16 +15,9 @@ class TreeViewClass:
             self.tree.delete(i)
 
     def get_data(self):
-        self.data = []
-
-        try:
-            c = self.conn.cursor()
-            c.execute(self.query)
-
-            for row in c.fetchall():
-                self.data.append(row)
-        except sqlite3.Error as error:
-            print(error)
+        self.data = self.databaseObj.execute_query(
+            query=self.query, get_results=True, get_first_item=False
+        )
 
     def add_data_toTreeview(self):
         # sort list based on the first element of each tuple, bookId

@@ -22,18 +22,23 @@ class Database:
 
         self.conn = create_connection(self.db_path)
 
-    def execute_query(self, query=None, book_autocompletion_flag=False):
+    def execute_query(self, query=None, get_results=False, get_first_item=False):
         try:
             c = self.conn.cursor()
 
+            c.execute(query)
+
             if query is not None:
-                c.execute(query)
-
-                if book_autocompletion_flag == True:
+                if get_results == True and get_first_item == True:
                     # convert list of tuples into a list of strings
-                    book_titles_lst = [item[0] for item in c.fetchall()]
+                    results = [item[0] for item in c.fetchall()]
 
-                    return book_titles_lst
+                    return results
+                elif get_results == True and get_first_item == False:
+                    # convert list of tuples into a list of strings
+                    results = [item for item in c.fetchall()]
+
+                    return results
         except sqlite3.Error as error:
             print(error)
         finally:
@@ -184,8 +189,9 @@ class Database:
         As a result, the previous transaction gets deactivated and since Reserve and Checkout are
         always part of either of the two cases above:
         in case there is no previous transaction: both Reserve and Checkout have the same member id for the new transaction
-        otherwise, if the function is called for Reserve, then the CheckOutMemberId is the previous transaction's member id
-        or if thefunction is called for Checkout, then the ReservedMemberId is the previous transaction's member id
+        otherwise, if:
+        - the function is called for Reserve, then the CheckOutMemberId is the previous transaction's member id
+        - thefunction is called for Checkout, then the ReservedMemberId is the previous transaction's member id
         """
         last_activatedTransactionId = self.deactivateLastTransaction(final_df, row)
 
@@ -359,7 +365,7 @@ class Database:
                                 endRecordDate=np.nan,
                                 isActive=1,
                             )
-                        # otherwise, the reservation will be considered that it has already been done in the past =>  transaction type will be Checkout
+                        # otherwise, the reservation is considered that it has been done in the past =>  transaction type will be Checkout
                         else:
                             last_ReservedMemberId = (
                                 self.findLastMemberId_and_deactivateLastTransaction(
@@ -408,7 +414,7 @@ class Database:
                                 endRecordDate=np.nan,
                                 isActive=1,
                             )
-                        # otherwise, the reservation will be considered that it has already been done in the past => main transaction type will be Return
+                        # otherwise, the reservation is considered that it has been done in the past => main transaction type will be Return
                         else:
                             self.fill_new_fields(
                                 transactions_df,

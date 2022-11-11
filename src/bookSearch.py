@@ -1,16 +1,25 @@
+from tkinter import messagebox
 from treeView import TreeViewClass
 
 
-def find_books(text, conn, tree):
+class SearchBookTitle:
+    def __init__(self, databaseObj, tree):
+        self.databaseObj = databaseObj
+        self.conn = self.databaseObj.conn
+        self.tree = tree
 
-    # check that input is not only whitespace
-    if len(text.strip()) != 0:
-        search_query = f"""SELECT bi.BookId, g.GenreRef, bt.BookTitleRef, ba.BookAuthorRef, bc.PurchasePrice£, bc.PurchaseDate
-    FROM BookInventory bi
-    INNER JOIN Genre g on g.GenreKey = bi.GenreKey
-    INNER JOIN BookTitle bt on bt.BookTitleKey = bi.BookTitleKey
-    INNER JOIN BookAuthor ba on ba.BookAuthorKey = bi.BookAuthorKey
-    INNER JOIN BookCopies bc on bc.BookCopyKey = bi.BookCopyKey
-    WHERE bt.BookTitleRef LIKE '%{text}%';"""
+    def find_books(self, text):
 
-        TreeViewClass(conn, tree, search_query)
+        # check that input is not only whitespace
+        if len(text.strip()) != 0:
+            search_query = f"""SELECT bi.BookId, g.GenreRef, bt.BookTitleRef, ba.BookAuthorRef, bc.PurchasePrice£, bc.PurchaseDate
+        FROM BookInventory bi
+        INNER JOIN Genre g on g.GenreKey = bi.GenreKey
+        INNER JOIN BookTitle bt on bt.BookTitleKey = bi.BookTitleKey
+        INNER JOIN BookAuthor ba on ba.BookAuthorKey = bi.BookAuthorKey
+        INNER JOIN BookCopies bc on bc.BookCopyKey = bi.BookCopyKey
+        WHERE bt.BookTitleRef LIKE '%{text}%';"""
+
+            TreeViewClass(self.databaseObj, self.tree, search_query)
+        else:
+            messagebox.showerror("Error", "No empty submission is allowed")
