@@ -20,7 +20,7 @@ Id,Genre,Title,Author,PurchasePrice£,PurchaseDate
 19,Thriller,The Grownup,Gillian Flynn,15,15/11/2014
 20,Thriller,The Grownup,Gillian Flynn,15,14/10/2014
 21,Thriller,The Grownup,Gillian Flynn,15,23/12/2015
-22,Thriller,The Grownup,Gillian Flynn,15,05/15/2016
+22,Thriller,The Grownup,Gillian Flynn,15,05/9/2016
 23,Thriller,The Grownup,Gillian Flynn,15,13/3/2016
 24,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
 25,Thriller,The Grownup,Gillian Flynn,15,11/12/2014
@@ -50,12 +50,12 @@ Id,Genre,Title,Author,PurchasePrice£,PurchaseDate
 49,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
 50,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
 51,Thriller,The Wife Between Us,Greer Hendricks,25,12/01/2015
-52,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
-53,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
-54,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
-55,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
-56,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
-57,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
-58,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
-59,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
-60,Biography,Steve Jobs,Walter Isaacson,30,07/24/2013
+52,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013
+53,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013
+54,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013
+55,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013
+56,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013
+57,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013
+58,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013
+59,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013
+60,Biography,Steve Jobs,Walter Isaacson,30,07/9/2013

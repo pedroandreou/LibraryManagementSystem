@@ -9,7 +9,6 @@ class SearchBookTitle:
         self.tree = tree
 
     def find_books(self, text):
-
         # check that input is not only whitespace
         if len(text.strip()) != 0:
             search_query = f"""SELECT bi.BookId, g.GenreRef, bt.BookTitleRef, ba.BookAuthorRef, bc.PurchasePrice£, bc.PurchaseDate

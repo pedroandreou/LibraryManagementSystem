@@ -147,7 +147,7 @@ class Database:
             # add days based on the transaction type above
             expiry_date = init_date + timedelta(days=num_of_days)
             # change format
-            expiry_date = expiry_date.strftime("%d/%m/%Y")
+            expiry_date = expiry_date.strftime("%Y/%m/%d")
             # get only the date and not the time
             expiry_date = str(expiry_date).split()[0]
             df.loc[idx, "TransactionTypeExpirationDate"] = expiry_date
@@ -155,8 +155,10 @@ class Database:
         else:
             df.loc[idx, "TransactionTypeExpirationDate"] = np.nan
 
-        df.loc[idx, "StartRecordDate"] = initialDate
-        df.loc[idx, "EndRecordDate"] = endRecordDate
+        df.loc[idx, "StartRecordDate"] = datetime.strptime(
+            initialDate, "%d/%m/%Y"
+        ).strftime("%Y/%m/%d")
+        # df.loc[idx, "EndRecordDate"] = datetime.strptime(endRecordDate, "%d/%m/%Y").strftime("%Y/%m/%d")
         df.loc[idx, "IsActive"] = isActive
 
     def deactivateLastTransaction(self, final_df, row):
@@ -262,7 +264,9 @@ class Database:
         data = {
             "BookCopyKey": bookInventory_df["BookCopyKey"],
             "PurchasePrice£": bookInfo_df["PurchasePrice£"],
-            "PurchaseDate": bookInfo_df["PurchaseDate"],
+            "PurchaseDate": pd.to_datetime(
+                bookInfo_df["PurchaseDate"], format="%d/%m/%Y"
+            ).dt.strftime("%Y-%m-%d"),
         }
         bookCopies_df = pd.DataFrame(data)
 
@@ -340,10 +344,10 @@ class Database:
                     if pd.isnull(row.loc["ReturnDate"]):
                         reserve_date = datetime.strptime(
                             row.loc["ReservationDate"], "%d/%m/%Y"
-                        )
+                        ).strftime("%Y/%m/%d")
                         checkout_date = datetime.strptime(
                             row.loc["CheckoutDate"], "%d/%m/%Y"
-                        )
+                        ).strftime("%Y/%m/%d")
 
                         # it is reserved by a new member even if the book is currently checked out
                         if reserve_date > checkout_date:
@@ -395,10 +399,10 @@ class Database:
 
                         reserve_date = datetime.strptime(
                             row.loc["ReservationDate"], "%d/%m/%Y"
-                        )
+                        ).strftime("%Y/%m/%d")
                         return_date = datetime.strptime(
                             row.loc["ReturnDate"], "%d/%m/%Y"
-                        )
+                        ).strftime("%Y/%m/%d")
 
                         # if the reservation date is more recent than the return date => reservation happened latest
                         if reserve_date > return_date:

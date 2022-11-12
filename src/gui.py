@@ -240,22 +240,24 @@ class App:
         elif curr_page == "rcr_page":
             return lambda: call_appropriate_rcr_action()
         elif curr_page == "rec_page":
-            if recommendation_tab == "Most Checkouts":
+            if recommendation_tab == "Book Copy":
 
-                return lambda: self.bookRecommendationSystemObject.most_checkouts(
-                    self.tree
-                )
-
-            elif recommendation_tab == "Number of copies":
-                return lambda: self.bookRecommendationSystemObject.number_of_copies(
-                    self.tree
-                )
-
-            elif recommendation_tab == "Total available minutes":
                 return (
-                    lambda: self.bookRecommendationSystemObject.total_available_minutes(
+                    lambda: self.bookRecommendationSystemObject.most_checkouts_per_copy(
                         self.tree
                     )
+                )
+
+            elif recommendation_tab == "Book":
+                return (
+                    lambda: self.bookRecommendationSystemObject.most_checkouts_per_book(
+                        self.tree
+                    )
+                )
+
+            elif recommendation_tab == "Available Days":
+                return lambda: self.bookRecommendationSystemObject.total_available_days(
+                    self.tree
                 )
 
     def create_bottom_button_widgets(
@@ -294,7 +296,9 @@ class App:
                 relx=0.75, rely=0.9, anchor=CENTER, height=40, width=220
             )
 
-    def change_Treeview_configs(self, frame, columns, h, bg, fieldbg, fg):
+    def change_Treeview_configs(
+        self, frame, columns, h, bg, fieldbg, fg, highlightbg="black"
+    ):
         self.tree = Treeview(
             frame,
             columns=[*columns],
@@ -304,7 +308,11 @@ class App:
 
         # change color to the Treeview
         self.style.configure(
-            "Treeview", background=bg, fieldbackground=fieldbg, foreground=fg
+            "Treeview",
+            background=bg,
+            fieldbackground=fieldbg,
+            foreground=fg,
+            highlightbackground=highlightbg,
         )
 
     def define_treeView_heading(self, order_num, width_num, col_name):
@@ -416,16 +424,25 @@ class App:
 
     def recommendation_page(self):
         def on_tab_change(event):
-            def add_treeView_to_notebookTab(frame, color, cols, pos_x, w):
+            def add_treeView_to_notebookTab(frame, cols, pos_x, w):
 
                 # add a Treeview widget
                 self.change_Treeview_configs(
-                    frame=frame, columns=cols, h=10, bg=color, fieldbg=color, fg="white"
+                    frame=frame,
+                    columns=cols,
+                    h=10,
+                    bg="red",
+                    fieldbg="red",
+                    fg="white",
+                    highlightbg="red",
                 )
 
                 # define headings
                 heading_position = 120
                 for i, text in enumerate(cols):
+                    if text == "Book Title":
+                        heading_position += 100
+
                     self.define_treeView_heading(str(i + 1), heading_position, text)
                     heading_position += 45
 
@@ -433,29 +450,26 @@ class App:
 
             self.tab = event.widget.tab("current")["text"]
 
-            if self.tab == "Most Checkouts":
+            if self.tab == "Book Copy":
                 add_treeView_to_notebookTab(
                     frame=self.tab1,
-                    color="red",
-                    cols=["BookId", "Num of Checkouts"],
-                    pos_x=200,
-                    w=280,
+                    cols=["BookId", "Book Title", "Num of Checkouts"],
+                    pos_x=65,
+                    w=680,
                 )
-            elif self.tab == "Number of copies":
+            elif self.tab == "Book":
                 add_treeView_to_notebookTab(
                     frame=self.tab2,
-                    color="red",
-                    cols=["BookId", "Num of Checkouts", "Num of Copies"],
-                    pos_x=80,
+                    cols=["Book Title", "Num of Checkouts"],
+                    pos_x=180,
                     w=490,
                 )
-            elif self.tab == "Total available minutes":
+            elif self.tab == "Available Days":
                 add_treeView_to_notebookTab(
                     frame=self.tab3,
-                    color="red",
-                    cols=["BookId", "Num of Checkouts", "Num of total available mins"],
-                    pos_x=80,
-                    w=490,
+                    cols=["Book Title", "Num of Checkouts", "Available Days"],
+                    pos_x=185,
+                    w=450,
                 )
 
             self.create_bottom_button_widgets(
@@ -472,33 +486,33 @@ class App:
         self.create_text_widget(frame=self.rec_frame, text=text, x=0.55, y=0.10, w=700)
 
         # add Message widget
-        bullet_point1 = "\u2022 Most Checkouts only"
-        bullet_point2 = "\u2022 Most Checkouts along with number of copies"
-        bullet_point3 = "\u2022 Most Checkouts along with Total available minutes"
+        bullet_point1 = "\u2022 Most Checkouts per Book Copy"
+        bullet_point2 = "\u2022 Most Checkouts per Book"
+        bullet_point3 = "\u2022 Most Checkouts in respect of Available Days (Purchase date till today) per Book"
         msg = Message(
             self.rec_frame,
             text="%s\n%s\n%s" % (bullet_point1, bullet_point2, bullet_point3),
             background="white",
-            width=500,
+            width=550,
             anchor="w",
         )
-        msg.place(x=375, y=125)
+        msg.place(x=285, y=125)
 
         # add Notebook widget
         notebook = Notebook(self.rec_frame)
-        notebook.place(relx=0.55, rely=0.55, width=650, height=300, anchor=CENTER)
+        notebook.place(relx=0.55, rely=0.55, width=800, height=300, anchor=CENTER)
 
         # create tab 1 to the notebook
         self.tab1 = Frame(notebook, bg="black")
-        notebook.add(self.tab1, text="Most Checkouts")
+        notebook.add(self.tab1, text="Book Copy")
 
         # create tab 2 to the notebook
         self.tab2 = Frame(notebook, bg="black")
-        notebook.add(self.tab2, text="Number of copies")
+        notebook.add(self.tab2, text="Book")
 
         # add tab 3 to the notebook
         self.tab3 = Frame(notebook, bg="black")
-        notebook.add(self.tab3, text="Total available minutes")
+        notebook.add(self.tab3, text="Available Days")
 
         # create object for book recommendation system
         self.bookRecommendationSystemObject = BookRecommendationSystem(self.databaseObj)
