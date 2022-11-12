@@ -39,3 +39,14 @@ class BookRecommendationSystem:
    LIMIT 5;"""
 
         TreeViewClass(self.databaseObj, tree, query, True)
+
+    def most_checkouts_per_genre(self, tree):
+        query = f"""SELECT g.GenreRef, COUNT(bi.GenreKey)
+   FROM BookInventory bi
+   INNER JOIN Genre g on g.GenreKey = bi.GenreKey
+   INNER JOIN Transactions t on t.BookId = bi.BookId
+   WHERE t.TransactionType = 'Checkout'
+   GROUP BY bi.GenreKey
+   LIMIT 5;"""
+
+        TreeViewClass(self.databaseObj, tree, query)

@@ -260,6 +260,11 @@ class App:
                     self.tree
                 )
 
+            elif recommendation_tab == "Genre":
+                return lambda: self.bookRecommendationSystemObject.most_checkouts_per_genre(
+                    self.tree
+                )
+
     def create_bottom_button_widgets(
         self,
         frame,
@@ -468,8 +473,15 @@ class App:
                 add_treeView_to_notebookTab(
                     frame=self.tab3,
                     cols=["Book Title", "Num of Checkouts", "Available Days"],
-                    pos_x=185,
-                    w=450,
+                    pos_x=50,
+                    w=700,
+                )
+            elif self.tab == "Genre":
+                add_treeView_to_notebookTab(
+                    frame=self.tab4,
+                    cols=["Genre", "Num of Checkouts"],
+                    pos_x=250,
+                    w=280,
                 )
 
             self.create_bottom_button_widgets(
@@ -489,9 +501,11 @@ class App:
         bullet_point1 = "\u2022 Most Checkouts per Book Copy"
         bullet_point2 = "\u2022 Most Checkouts per Book"
         bullet_point3 = "\u2022 Most Checkouts in respect of Available Days (Purchase date till today) per Book"
+        bullet_point4 = "\u2022 Most Checkouts per Genre"
         msg = Message(
             self.rec_frame,
-            text="%s\n%s\n%s" % (bullet_point1, bullet_point2, bullet_point3),
+            text="%s\n%s\n%s\n%s"
+            % (bullet_point1, bullet_point2, bullet_point3, bullet_point4),
             background="white",
             width=550,
             anchor="w",
@@ -513,6 +527,10 @@ class App:
         # add tab 3 to the notebook
         self.tab3 = Frame(notebook, bg="black")
         notebook.add(self.tab3, text="Available Days")
+
+        # add tab 4 to the notebook
+        self.tab4 = Frame(notebook, bg="black")
+        notebook.add(self.tab4, text="Genre")
 
         # create object for book recommendation system
         self.bookRecommendationSystemObject = BookRecommendationSystem(self.databaseObj)
