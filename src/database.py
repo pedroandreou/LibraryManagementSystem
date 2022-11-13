@@ -4,7 +4,7 @@ import numpy as np
 from datetime import datetime, timedelta
 
 
-class database:
+class Database:
     def __init__(self, db_path):
         self.db_path = db_path
 
@@ -22,18 +22,23 @@ class database:
 
         self.conn = create_connection(self.db_path)
 
-    def execute_query(self, query=None, book_autocompletion_flag=False):
+    def execute_query(self, query=None, get_results=False, get_first_item=False):
         try:
             c = self.conn.cursor()
 
+            c.execute(query)
+
             if query is not None:
-                c.execute(query)
-
-                if book_autocompletion_flag == True:
+                if get_results == True and get_first_item == True:
                     # convert list of tuples into a list of strings
-                    book_titles_lst = [item[0] for item in c.fetchall()]
+                    results = [item[0] for item in c.fetchall()]
 
-                    return book_titles_lst
+                    return results
+                elif get_results == True and get_first_item == False:
+                    # convert list of tuples into a list of strings
+                    results = [item for item in c.fetchall()]
+
+                    return results
         except sqlite3.Error as error:
             print(error)
         finally:
@@ -89,7 +94,7 @@ class database:
         dimension_refcol_name,
     ):
         """
-        This function maps all the values of the fact table from a dimension table
+        This method maps all the values of the fact table from a dimension table
         inspired by: https://stackoverflow.com/questions/53818434/pandas-replacing-values-by-looking-up-in-an-another-dataframe
         """
 
@@ -119,7 +124,7 @@ class database:
         endRecordDate,
         isActive,
     ):
-        """This function is inserting data to the new fields of the Transactions table"""
+        """This method is inserting data to the new fields of the Transactions table"""
 
         df.loc[idx, "TransactionType"] = transactionTypeMsg
         df.loc[idx, "IsCheckedOut"] = isCheckedOutNum
@@ -142,7 +147,7 @@ class database:
             # add days based on the transaction type above
             expiry_date = init_date + timedelta(days=num_of_days)
             # change format
-            expiry_date = expiry_date.strftime("%d/%m/%Y")
+            expiry_date = expiry_date.strftime("%Y/%m/%d")
             # get only the date and not the time
             expiry_date = str(expiry_date).split()[0]
             df.loc[idx, "TransactionTypeExpirationDate"] = expiry_date
@@ -150,13 +155,15 @@ class database:
         else:
             df.loc[idx, "TransactionTypeExpirationDate"] = np.nan
 
-        df.loc[idx, "StartRecordDate"] = initialDate
-        df.loc[idx, "EndRecordDate"] = endRecordDate
+        df.loc[idx, "StartRecordDate"] = datetime.strptime(
+            initialDate, "%d/%m/%Y"
+        ).strftime("%Y/%m/%d")
+        # df.loc[idx, "EndRecordDate"] = datetime.strptime(endRecordDate, "%d/%m/%Y").strftime("%Y/%m/%d")
         df.loc[idx, "IsActive"] = isActive
 
     def deactivateLastTransaction(self, final_df, row):
         """
-        This function is called for deactivating the previous transaction of the specific member id
+        This method is called for deactivating the previous transaction of the specific member id
         In case it is the first transaction of the specific book's copy, then it won't do anything
         """
         allTransactions_of_bookId_df = final_df[
@@ -178,14 +185,15 @@ class database:
 
     def findLastMemberId_and_deactivateLastTransaction(self, initial_df, final_df, row):
         """
-        This function is called when either Reserve and Checkout happen at the same time
+        This method is called when either Reserve and Checkout happen at the same time
         or all Reserve, Checkout, Return occur in a single transaction.
 
         As a result, the previous transaction gets deactivated and since Reserve and Checkout are
         always part of either of the two cases above:
         in case there is no previous transaction: both Reserve and Checkout have the same member id for the new transaction
-        otherwise, if the function is called for Reserve, then the CheckOutMemberId is the previous transaction's member id
-        or if thefunction is called for Checkout, then the ReservedMemberId is the previous transaction's member id
+        otherwise, if:
+        - the method is called for Reserve, then the CheckOutMemberId is the previous transaction's member id
+        - the method is called for Checkout, then the ReservedMemberId is the previous transaction's member id
         """
         last_activatedTransactionId = self.deactivateLastTransaction(final_df, row)
 
@@ -256,7 +264,9 @@ class database:
         data = {
             "BookCopyKey": bookInventory_df["BookCopyKey"],
             "PurchasePrice£": bookInfo_df["PurchasePrice£"],
-            "PurchaseDate": bookInfo_df["PurchaseDate"],
+            "PurchaseDate": pd.to_datetime(
+                bookInfo_df["PurchaseDate"], format="%d/%m/%Y"
+            ).dt.strftime("%Y-%m-%d"),
         }
         bookCopies_df = pd.DataFrame(data)
 
@@ -280,7 +290,6 @@ class database:
         data = {
             "TransactionId": loanReservationHistory_df["TransactionId"],
             "BookId": loanReservationHistory_df["BookId"],
-            "BookCopyKey": loanReservationHistory_df["BookId"],
             "TransactionType": np.nan,
             "IsCheckedOut": np.nan,
             "CheckedOutMemberId": np.nan,
@@ -296,7 +305,6 @@ class database:
             columns=[
                 "TransactionId",
                 "BookId",
-                "BookCopyKey",
                 "TransactionType",
                 "IsCheckedOut",
                 "CheckedOutMemberId",
@@ -336,10 +344,10 @@ class database:
                     if pd.isnull(row.loc["ReturnDate"]):
                         reserve_date = datetime.strptime(
                             row.loc["ReservationDate"], "%d/%m/%Y"
-                        )
+                        ).strftime("%Y/%m/%d")
                         checkout_date = datetime.strptime(
                             row.loc["CheckoutDate"], "%d/%m/%Y"
-                        )
+                        ).strftime("%Y/%m/%d")
 
                         # it is reserved by a new member even if the book is currently checked out
                         if reserve_date > checkout_date:
@@ -361,7 +369,7 @@ class database:
                                 endRecordDate=np.nan,
                                 isActive=1,
                             )
-                        # otherwise, the reservation will be considered that it has already been done in the past => main transaction type will be Checkout
+                        # otherwise, the reservation is considered that it has been done in the past =>  transaction type will be Checkout
                         else:
                             last_ReservedMemberId = (
                                 self.findLastMemberId_and_deactivateLastTransaction(
@@ -391,10 +399,10 @@ class database:
 
                         reserve_date = datetime.strptime(
                             row.loc["ReservationDate"], "%d/%m/%Y"
-                        )
+                        ).strftime("%Y/%m/%d")
                         return_date = datetime.strptime(
                             row.loc["ReturnDate"], "%d/%m/%Y"
-                        )
+                        ).strftime("%Y/%m/%d")
 
                         # if the reservation date is more recent than the return date => reservation happened latest
                         if reserve_date > return_date:
@@ -410,7 +418,7 @@ class database:
                                 endRecordDate=np.nan,
                                 isActive=1,
                             )
-                        # otherwise, the reservation will be considered that it has already been done in the past => main transaction type will be Return
+                        # otherwise, the reservation is considered that it has been done in the past => main transaction type will be Return
                         else:
                             self.fill_new_fields(
                                 transactions_df,
