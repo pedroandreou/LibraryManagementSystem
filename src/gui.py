@@ -95,13 +95,13 @@ class App:
         self.main_page()
 
     def show_frame(self, frame):
-        #  set border color
+        # Set border color
         frame.config(highlightbackground="black", highlightthickness=10)
-        #  make frame visible to toplevel
+        # Make frame visible to toplevel
         frame.pack(expand=True)
 
     def hide_frame(self, frame):
-        # remove the frame from toplevel
+        # Remove the frame from toplevel
         frame.pack_forget()
 
     def get_font_fg_bg(self):
@@ -109,7 +109,7 @@ class App:
         return {"font": "sans 16 bold", "fg": "white", "bg": "black"}
 
     def create_text_widget(self, frame, text, x, y, w):
-        # add Text widget
+        # Add Text widget
         T = Text(frame, **self.get_font_fg_bg())
         T.tag_configure("center", justify="center")
         T.insert(END, text)
@@ -129,7 +129,7 @@ class App:
 
         self.main_frame = Frame(self.master, bg="#FFC300", height=700, width=900)
 
-        # add Text widget
+        # Add Text widget
         text = "\nWelcome to Petros's Library Management System"
         self.create_text_widget(frame=self.main_frame, text=text, x=0.53, y=0.35, w=700)
 
@@ -141,7 +141,7 @@ class App:
         )
         self.search_bton.place(relx=0.5, rely=0.55, anchor=CENTER, height=60, width=400)
 
-        # rcr => reserve, checkout, return
+        # RCR, Reserve, Checkout, Return
         self.rcr_bton = Button(
             self.main_frame,
             **self.get_font_fg_bg(),
@@ -309,7 +309,7 @@ class App:
             height=h,
         )
 
-        # change color to the Treeview
+        # Change color to the Treeview
         self.style.configure(
             "Treeview",
             background=bg,
@@ -327,10 +327,10 @@ class App:
     def search_book_page(self):
         self.master.title("Search Book")
 
-        # create new frame for 'search book' page to attach all its widgets
+        # Create new frame for 'search book' page to attach all its widgets
         self.sb_frame = Frame(self.master, bg="#FFC300", height=700, width=1400)
 
-        # widgets for "search book" label and entry for getting user input
+        # Widgets for "Search Book" label and entry for getting user input
         self.create_label_entry_widgets(
             frame=self.sb_frame,
             label_text="Search Book Title",
@@ -338,7 +338,7 @@ class App:
             autocomplete_widget_flag=True,
         )
 
-        # define Treeview headings
+        # Define Treeview headings
         columns = [
             "BookId",
             "Genre",
@@ -348,7 +348,7 @@ class App:
             "Purchase Date",
         ]
 
-        # add a Treeview widget
+        # Add a Treeview widget
         self.change_Treeview_configs(
             frame=self.sb_frame,
             columns=columns,
@@ -358,7 +358,7 @@ class App:
             fg="white",
         )
 
-        # define headings
+        # Define headings
         self.define_treeView_heading("1", 120, "Id")
         self.define_treeView_heading("2", 140, "Genre")
         self.define_treeView_heading("3", 223, "Title")
@@ -368,12 +368,12 @@ class App:
 
         self.tree.place(x=200, y=140)
 
-        # create instance of the SearchBookTitle class
+        # Create instance of the SearchBookTitle class
         self.SearchBookTitleObject = SearchBookTitle(self.databaseObj, self.tree)
 
         self.create_bottom_button_widgets(frame=self.sb_frame, curr_page="search_book")
 
-        # show frame with all its widgets
+        # Show frame with all its widgets
         self.show_frame(self.sb_frame)
 
     def show_id_label_entry_widgets(self):
@@ -392,7 +392,7 @@ class App:
         )
 
     def dropdown_widget(self, frame, vals, pos_x, pos_y):
-        # widgets
+        # Widgets
         dropdown = Combobox(
             frame,
             state="readonly",
@@ -407,10 +407,10 @@ class App:
     def rcr_page(self):
         self.master.title("Checkout Book")
 
-        # create new frame for the 'rcr' page to attach all its widgets
+        # Create new frame for the 'rcr' page to attach all its widgets
         self.rcr_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
 
-        # add dropdown widget
+        # Add dropdown widget
         self.rcr_dropdown = self.dropdown_widget(
             self.rcr_frame, ["Reserve Book", "Checkout Book", "Return Book"], 0.45, 0.1
         )
@@ -428,14 +428,14 @@ class App:
 
         self.create_bottom_button_widgets(frame=self.rcr_frame, curr_page="rcr_page")
 
-        # show frame with all its widgets
+        # Show frame with all its widgets
         self.show_frame(self.rcr_frame)
 
     def recommendation_page(self):
         def on_tab_change(event):
             def add_treeView_to_notebookTab(frame, cols, heading_pos_lst, pos_x, w):
 
-                # add a Treeview widget
+                # Add a Treeview widget
                 self.change_Treeview_configs(
                     frame=frame,
                     columns=cols,
@@ -446,7 +446,7 @@ class App:
                     highlightbg="red",
                 )
 
-                # define headings
+                # Define headings
                 counter = 1
                 for col, pos in zip(cols, heading_pos_lst):
                     self.define_treeView_heading(str(counter), pos, col)
@@ -500,14 +500,14 @@ class App:
 
         self.master.title("Recommended Books")
 
-        # create new frame for the 'recommendation_page' page to attach all its widgets
+        # Create new frame for the 'recommendation_page' page to attach all its widgets
         self.rec_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
 
-        # add Text widget
+        # Add Text widget
         text = "\nFind recommended books based on the below conditions"
         self.create_text_widget(frame=self.rec_frame, text=text, x=0.55, y=0.10, w=700)
 
-        # add Message widget
+        # Add Message widget
         bullet_point1 = "\u2022 Most Reservations/Checkouts/Returns per Book Copy"
         bullet_point2 = "\u2022 Most Reservations/Checkouts/Returns per Book"
         bullet_point3 = "\u2022 Most Reservations/Checkouts/Returns in respect of Available Days (Purchase date till today) per Book"
@@ -522,53 +522,53 @@ class App:
         )
         msg.place(x=195, y=125)
 
-        # add Notebook widget
+        # Add Notebook widget
         notebook = Notebook(self.rec_frame)
         notebook.place(relx=0.55, rely=0.55, width=800, height=300, anchor=CENTER)
 
-        # create tab 1 to the notebook
+        # Create tab 1 to the notebook
         self.tab1 = Frame(notebook, bg="black")
         notebook.add(self.tab1, text="Book Copy")
 
-        # create tab 2 to the notebook
+        # Create tab 2 to the notebook
         self.tab2 = Frame(notebook, bg="black")
         notebook.add(self.tab2, text="Book")
 
-        # add tab 3 to the notebook
+        # Add tab 3 to the notebook
         self.tab3 = Frame(notebook, bg="black")
         notebook.add(self.tab3, text="Available Days")
 
-        # add tab 4 to the notebook
+        # Add tab 4 to the notebook
         self.tab4 = Frame(notebook, bg="black")
         notebook.add(self.tab4, text="Genre")
 
-        # create object for book recommendation system
+        # Create object for book recommendation system
         self.bookRecommendationSystemObject = BookRecommendationSystem(self.databaseObj)
 
-        # change configurations of Treeview when the tab is changed
+        # Change configurations of Treeview when the tab is changed
         notebook.bind("<<NotebookTabChanged>>", on_tab_change)
 
-        # add dropdown widget
+        # Add dropdown widget
         self.rec_dropdown = self.dropdown_widget(
             self.rec_frame, ["Reserve", "Checkout", "Return"], 0.55, 0.8
         )
 
-        # show frame with all its widgets
+        # Show frame with all its widgets
         self.show_frame(self.rec_frame)
 
     def db_schema_page(self):
         self.master.title("DB Schema")
 
-        # create new frame for the 'db_schema_page' page to attach all its widgets
+        # Create new frame for the 'db_schema_page' page to attach all its widgets
         self.db_schema_frame = Frame(self.master, bg="#FFC300", height=800, width=1000)
 
-        # add Text widget
+        # Add Text widget
         text = "\nMy Database Schema"
         self.create_text_widget(
             frame=self.db_schema_frame, text=text, x=0.515, y=0.1, w=500
         )
 
-        # create canvas and place it on the frame
+        # Create canvas and place it on the frame
         canvas = Canvas(
             self.db_schema_frame,
             bg="white",
@@ -576,11 +576,11 @@ class App:
             highlightthickness=5,
         )
 
-        # load img that shows the db structure
+        # Load image to show the db structure
         erd_img = Image.open(self.erd_img_path)
         self.db_schema_frame.logo = ImageTk.PhotoImage(erd_img)
 
-        # place the image as canvas image object directly on the canvas
+        # Place the image as canvas image object directly on the canvas
         canvas.create_image(450, 280, image=self.db_schema_frame.logo, anchor=CENTER)
         canvas.place(relx=0.5, rely=0.55, width=900, height=550, anchor=CENTER)
 
@@ -591,5 +591,5 @@ class App:
             go_back_bton_y=0.96,
         )
 
-        # show frame with all its widgets
+        # Show frame with all its widgets
         self.show_frame(self.db_schema_frame)
