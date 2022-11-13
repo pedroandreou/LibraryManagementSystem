@@ -11,5 +11,5 @@
 # Database
 library.db
 
-# Dockerfile
-Dockerfile
+# docker-compose.yml
+docker-compose.yml

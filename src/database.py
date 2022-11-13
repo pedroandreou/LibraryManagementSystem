@@ -94,7 +94,7 @@ class Database:
         dimension_refcol_name,
     ):
         """
-        This function maps all the values of the fact table from a dimension table
+        This method maps all the values of the fact table from a dimension table
         inspired by: https://stackoverflow.com/questions/53818434/pandas-replacing-values-by-looking-up-in-an-another-dataframe
         """
 
@@ -124,7 +124,7 @@ class Database:
         endRecordDate,
         isActive,
     ):
-        """This function is inserting data to the new fields of the Transactions table"""
+        """This method is inserting data to the new fields of the Transactions table"""
 
         df.loc[idx, "TransactionType"] = transactionTypeMsg
         df.loc[idx, "IsCheckedOut"] = isCheckedOutNum
@@ -163,7 +163,7 @@ class Database:
 
     def deactivateLastTransaction(self, final_df, row):
         """
-        This function is called for deactivating the previous transaction of the specific member id
+        This method is called for deactivating the previous transaction of the specific member id
         In case it is the first transaction of the specific book's copy, then it won't do anything
         """
         allTransactions_of_bookId_df = final_df[
@@ -185,15 +185,15 @@ class Database:
 
     def findLastMemberId_and_deactivateLastTransaction(self, initial_df, final_df, row):
         """
-        This function is called when either Reserve and Checkout happen at the same time
+        This method is called when either Reserve and Checkout happen at the same time
         or all Reserve, Checkout, Return occur in a single transaction.
 
         As a result, the previous transaction gets deactivated and since Reserve and Checkout are
         always part of either of the two cases above:
         in case there is no previous transaction: both Reserve and Checkout have the same member id for the new transaction
         otherwise, if:
-        - the function is called for Reserve, then the CheckOutMemberId is the previous transaction's member id
-        - thefunction is called for Checkout, then the ReservedMemberId is the previous transaction's member id
+        - the method is called for Reserve, then the CheckOutMemberId is the previous transaction's member id
+        - the method is called for Checkout, then the ReservedMemberId is the previous transaction's member id
         """
         last_activatedTransactionId = self.deactivateLastTransaction(final_df, row)
 

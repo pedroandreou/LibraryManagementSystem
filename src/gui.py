@@ -240,29 +240,27 @@ class App:
         elif curr_page == "rcr_page":
             return lambda: call_appropriate_rcr_action()
         elif curr_page == "rec_page":
-            if recommendation_tab == "Book Copy":
 
-                return (
-                    lambda: self.bookRecommendationSystemObject.most_checkouts_per_copy(
-                        self.tree
-                    )
+            if recommendation_tab == "Book Copy":
+                return lambda: self.bookRecommendationSystemObject.most_rcr_per_copy(
+                    self.tree, self.rec_dropdown.get()
                 )
 
             elif recommendation_tab == "Book":
-                return (
-                    lambda: self.bookRecommendationSystemObject.most_checkouts_per_book(
-                        self.tree
-                    )
+                return lambda: self.bookRecommendationSystemObject.most_rcr_per_book(
+                    self.tree, self.rec_dropdown.get()
                 )
 
             elif recommendation_tab == "Available Days":
-                return lambda: self.bookRecommendationSystemObject.total_available_days(
-                    self.tree
+                return (
+                    lambda: self.bookRecommendationSystemObject.most_rcr_available_days(
+                        self.tree, self.rec_dropdown.get()
+                    )
                 )
 
             elif recommendation_tab == "Genre":
-                return lambda: self.bookRecommendationSystemObject.most_checkouts_per_genre(
-                    self.tree
+                return lambda: self.bookRecommendationSystemObject.most_rcr_per_genre(
+                    self.tree, self.rec_dropdown.get()
                 )
 
     def create_bottom_button_widgets(
@@ -393,22 +391,28 @@ class App:
             frame=self.rcr_frame, label_text="Member ID", y=0.4, x1=0.35, x2=0.55
         )
 
+    def dropdown_widget(self, frame, vals, pos_x, pos_y):
+        # widgets
+        dropdown = Combobox(
+            frame,
+            state="readonly",
+            justify="center",
+            values=vals,
+        )
+        dropdown.current(0)
+        dropdown.place(relx=pos_x, rely=pos_y, anchor=CENTER, height=30, width=500)
+
+        return dropdown
+
     def rcr_page(self):
         self.master.title("Checkout Book")
 
         # create new frame for the 'rcr' page to attach all its widgets
         self.rcr_frame = Frame(self.master, bg="#FFC300", height=700, width=1000)
 
-        # widgets
-        self.rcr_dropdown = Combobox(
-            self.rcr_frame,
-            state="readonly",
-            justify="center",
-            values=["Reserve Book", "Checkout Book", "Return Book"],
-        )
-        self.rcr_dropdown.current(0)
-        self.rcr_dropdown.place(
-            relx=0.45, rely=0.1, anchor=CENTER, height=30, width=500
+        # add dropdown widget
+        self.rcr_dropdown = self.dropdown_widget(
+            self.rcr_frame, ["Reserve Book", "Checkout Book", "Return Book"], 0.45, 0.1
         )
 
         self.action_submit_btn = Button(
@@ -429,7 +433,7 @@ class App:
 
     def recommendation_page(self):
         def on_tab_change(event):
-            def add_treeView_to_notebookTab(frame, cols, pos_x, w):
+            def add_treeView_to_notebookTab(frame, cols, heading_pos_lst, pos_x, w):
 
                 # add a Treeview widget
                 self.change_Treeview_configs(
@@ -443,13 +447,11 @@ class App:
                 )
 
                 # define headings
-                heading_position = 120
-                for i, text in enumerate(cols):
-                    if text == "Book Title":
-                        heading_position += 100
+                counter = 1
+                for col, pos in zip(cols, heading_pos_lst):
+                    self.define_treeView_heading(str(counter), pos, col)
 
-                    self.define_treeView_heading(str(i + 1), heading_position, text)
-                    heading_position += 45
+                    counter += 1
 
                 self.tree.place(x=pos_x, y=20, width=w)
 
@@ -458,30 +460,38 @@ class App:
             if self.tab == "Book Copy":
                 add_treeView_to_notebookTab(
                     frame=self.tab1,
-                    cols=["BookId", "Book Title", "Num of Checkouts"],
-                    pos_x=65,
-                    w=680,
+                    cols=["BookId", "Book Title", "Num of the submitted RCR action"],
+                    heading_pos_lst=[120, 200, 320],
+                    pos_x=110,
+                    w=600,
                 )
             elif self.tab == "Book":
                 add_treeView_to_notebookTab(
                     frame=self.tab2,
-                    cols=["Book Title", "Num of Checkouts"],
-                    pos_x=180,
-                    w=490,
+                    cols=["Book Title", "Num of of the submitted RCR action"],
+                    heading_pos_lst=[280, 320],
+                    pos_x=100,
+                    w=600,
                 )
             elif self.tab == "Available Days":
                 add_treeView_to_notebookTab(
                     frame=self.tab3,
-                    cols=["Book Title", "Num of Checkouts", "Available Days"],
-                    pos_x=50,
-                    w=700,
+                    cols=[
+                        "Book Title",
+                        "Num of the submitted RCR action",
+                        "Available Days",
+                    ],
+                    heading_pos_lst=[260, 260, 260],
+                    pos_x=40,
+                    w=720,
                 )
             elif self.tab == "Genre":
                 add_treeView_to_notebookTab(
                     frame=self.tab4,
-                    cols=["Genre", "Num of Checkouts"],
-                    pos_x=250,
-                    w=280,
+                    cols=["Genre", "Num of the submitted RCR action"],
+                    heading_pos_lst=[120, 260],
+                    pos_x=210,
+                    w=380,
                 )
 
             self.create_bottom_button_widgets(
@@ -498,19 +508,19 @@ class App:
         self.create_text_widget(frame=self.rec_frame, text=text, x=0.55, y=0.10, w=700)
 
         # add Message widget
-        bullet_point1 = "\u2022 Most Checkouts per Book Copy"
-        bullet_point2 = "\u2022 Most Checkouts per Book"
-        bullet_point3 = "\u2022 Most Checkouts in respect of Available Days (Purchase date till today) per Book"
-        bullet_point4 = "\u2022 Most Checkouts per Genre"
+        bullet_point1 = "\u2022 Most Reservations/Checkouts/Returns per Book Copy"
+        bullet_point2 = "\u2022 Most Reservations/Checkouts/Returns per Book"
+        bullet_point3 = "\u2022 Most Reservations/Checkouts/Returns in respect of Available Days (Purchase date till today) per Book"
+        bullet_point4 = "\u2022 Most Reservations/Checkouts/Returns per Genre"
         msg = Message(
             self.rec_frame,
             text="%s\n%s\n%s\n%s"
             % (bullet_point1, bullet_point2, bullet_point3, bullet_point4),
             background="white",
-            width=550,
+            width=750,
             anchor="w",
         )
-        msg.place(x=285, y=125)
+        msg.place(x=195, y=125)
 
         # add Notebook widget
         notebook = Notebook(self.rec_frame)
@@ -538,6 +548,11 @@ class App:
         # change configurations of Treeview when the tab is changed
         notebook.bind("<<NotebookTabChanged>>", on_tab_change)
 
+        # add dropdown widget
+        self.rec_dropdown = self.dropdown_widget(
+            self.rec_frame, ["Reserve", "Checkout", "Return"], 0.55, 0.8
+        )
+
         # show frame with all its widgets
         self.show_frame(self.rec_frame)
 
@@ -556,8 +571,8 @@ class App:
         # create canvas and place it on the frame
         canvas = Canvas(
             self.db_schema_frame,
-            bg="#FFC300",
-            highlightbackground="white",
+            bg="white",
+            highlightbackground="black",
             highlightthickness=5,
         )
 

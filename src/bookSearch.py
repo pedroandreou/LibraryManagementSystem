@@ -19,6 +19,8 @@ class SearchBookTitle:
         INNER JOIN BookCopies bc on bc.BookCopyKey = bi.BookCopyKey
         WHERE bt.BookTitleRef LIKE '%{text}%';"""
 
-            TreeViewClass(self.databaseObj, self.tree, search_query)
+            TreeViewClass(
+                self.databaseObj, self.tree, search_query, book_search_flag=True
+            )
         else:
             messagebox.showerror("Error", "No empty submission is allowed")
