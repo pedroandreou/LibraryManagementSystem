@@ -1,0 +1,14 @@
+version: '2.4'
+
+services:
+  myproject:
+    build:
+      dockerfile: ./Dockerfile
+      context: ./
+    volumes:
+      - "./data/library.db:/data/library.db" # Mount db
+      - "/tmp/.X11-unix:/tmp/.X11-unix" # Mount the X11 socket
+    environment:
+      DISPLAY: unix$DISPLAY # Pass the display
+    ports:
+      - '8080:8080'

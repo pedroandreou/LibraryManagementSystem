@@ -20,9 +20,6 @@ RUN apt-get install tk -y
 # Doownload sqlite
 RUN apt-get install -y sqlite3 libsqlite3-dev
 
-# Create directory for database
-RUN mkdir /db
-
 # Copy all files from local project folder to Docker image
 COPY . .
 

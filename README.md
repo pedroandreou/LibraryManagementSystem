@@ -48,9 +48,9 @@ To complete this task, I should have made the following changes:
 1. the BookCopyKey FK needs to be removed from the BookInventory table
 2. a new PK needs to be created in the BookCopies table for tracking each book copy
 3. BookId needs to be set as FK to the BookCopies table
-- Add functionality that will check for expiration dates since I have already set expiration dates for people who reserve or checkout a book (reservation can last for 10 days while checkout for 30 days) but haven't added any functionality for checking if the user meets the criteria
+- Add functionality that will check for expiration dates since I have already set expiration dates for people who reserve or checkout a book (reservation can last for 10 days while checkout for 30 days)
 - EndRecordDate of the transaction has been added to the Transactions table. I would add the new transaction's date as the EndRecordDate of the previous transaction. In other words, when a new transaction comes in, the previous transaction should close; have an end date. It's a simple task as how to add it is already implemented using the "fill_new_fields" method in the "database.py" file
-- Add a volume and attach/mount the local SQLite DB to the created directory in the container; so the data can be persistent
+
 
 # Environment
 ## How to set up a virtual environment on Windows:
@@ -103,9 +103,11 @@ sqlite3 library.db
 
 ## :whale: Docker
 #### How to run the Tkinter app in a Docker container on Linux:
+```
 xhost +
 sudo apt-get install x11-xserver-utils (Haven't included it in the requirements.txt as pip cannot find a matching distribution for this package)
-docker run -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY librarymanagementsystem_myproject
+docker-compose up
+```
 
 
 ## 🛠 Initialization & Setup
@@ -114,4 +116,6 @@ docker run -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=unix$DISPLAY librarymanag
 
 
 ## Author
-Petros Andreou
+<a href="https://www.linkedin.com/in/petrosandreou80/">
+  <img align="center" src="https://img.shields.io/badge/Petros LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" />
+</a>
