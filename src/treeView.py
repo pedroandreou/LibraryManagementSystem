@@ -8,7 +8,6 @@ class TreeViewClass:
         available_days_flag=False,
     ):
         self.databaseObj = databaseObj
-        self.conn = self.databaseObj.conn
         self.tree = tree
         self.query = query
         self.book_search_flag = book_search_flag

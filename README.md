@@ -2,7 +2,7 @@
 - The GUI's window is dynamic; it gets increased or decreased in size automatically
 - Loaded text files using the pandas 'to_sql' method
 - Followed STAR schema
-- Created fact tables and dimension tables programmatically (look at the "create_dimension_table" function in the "database.py" file)
+- Created fact tables and dimension tables dynamically (look at the "create_dimension_table" function in the "database.py" file)
 - Mapped values to ids dynamically for assigning them as keys to tables (look at the "map_vals_to_ids" function in the "database.py" file)
 - Created reusable code for the widgets; for example, the two buttons on the bottom of each page, "Go Back" and "Submit", can be added by calling the "create_bottom_button_widgets" method; the same applies to the entry and label widgets ("create_label_entry_widgets" method).
 - Instead of destroying the frame of each page by doing:
@@ -11,7 +11,7 @@ def destroy_page_widgets(self):
   for i in self.master.winfo_children():
     i.destroy()
 ```
-I am hiding and turning the frames to visible again when appropriate (see at "show_frame" and "hide_frame" methods in the "gui.py" file)
+Or even instead of having just one frame, I am having a single frame for each page where each is hidden and turned to visible again when appropriate (see at "show_frame" and "hide_frame" methods in the "gui.py" file)
 - Created images using draw.io in combination with GIMP software and added them to Tkinter buttons
 - No point in writing dot code for visualising the ERD diagram of my DB. Used DBeaver software to generate the diagram automatically and made the images transparent using the GIMP software
 - Autocomplete of suggested book titles feature added to the "Search Book" page using the ttkwidgets library
@@ -19,7 +19,7 @@ I am hiding and turning the frames to visible again when appropriate (see at "sh
 
 
 # Notes:
-- If you want to check if the normalization happens, which would require changing some of the data in the txt files, make sure the DB file is deleted
+- If you want to check if the normalization happens, which would require changing some data values in the txt files, make sure the DB file is deleted
 before running the program again, as it won't load the changes. The reason is that I am checking if the DB exists, and in case it does,
 then I skip the loading part since it only needs to be loaded once. In case of loading the DB every single time the program runs, then the data would always be overwritten, and the user's changes would always be lost after the end of a session
 - Documentation for what each line of the ERD diagram represents added in the ./data/imgs directory
@@ -43,22 +43,40 @@ The below logic applies to the load of the files since the procedure of Reservin
 
 # Future Work:
 - Add a vertical scroll bar to the TreeView widget for better UX, but nevertheless, the user can still scroll without one
-- There is only one thing I would change in my DB Schema. The book copies are currently all in the BookInventory table, whereas the BookCopies table adds another 2 columns to the BookInventory. That's silly, and I should have noticed it earlier. In reality, BookInventory should have only had the different books, and all the copies should have been in the BookCopies table
-To complete this task, I should have made the following changes:
+- There is only one thing I would change in my DB Schema. The book copies are currently all in the BookInventory table, whereas the BookCopies table adds another 2 columns to the BookInventory. That's silly, and I should have noticed it earlier. In reality, BookInventory should have only had one book from all the series of copies, and all the copies should have been in the BookCopies table
+To complete this task, I need to make the following changes:
 1. the BookCopyKey FK needs to be removed from the BookInventory table
 2. a new PK needs to be created in the BookCopies table for tracking each book copy
 3. BookId needs to be set as FK to the BookCopies table
 - Add functionality that will check for expiration dates since I have already set expiration dates for people who reserve or checkout a book (reservation can last for 10 days while checkout for 30 days)
 - EndRecordDate of the transaction has been added to the Transactions table. I would add the new transaction's date as the EndRecordDate of the previous transaction. In other words, when a new transaction comes in, the previous transaction should close; have an end date. It's a simple task as how to add it is already implemented using the "fill_new_fields" method in the "database.py" file
+- Update the column header of "Num of submitted RCR action" of the Treeview in the Notebook tab in the recommendation page based on the submitted RCR action. For example, if Return is submitted, the column header of the Treeview should be "Num of Returns"; same applies for Reserve and Return actions
+- The transaction of Reserve/Checkout/Return in the "bookReserve.py" & "bookCheckout.py" & "bookReturn.py" files use the 'to_sql' method which replaces the whole SQLite table (with a dataframe) for just updating/deactivating the previous transaction and inserting the new transaction. In other words, only two rows are edited.
+This is a very terrible idea though as it takes some time to replace it
+Ideally, since I already have the row of the previous transaction ("last_activatedTransaction" variable), I could have just made an UPDATE query with a WHERE clause like the following:
+
+```
+UPDATE Transactions
+SET t.isActive = 0
+WHERE t.bookId = last_activatedTransaction.loc["bookId"] and t.isActive = 1
+GROUP BY t.bookId;
+```
+
+and I could have inserted the new transaction (last row of the dataframe) by doing something similar to the following:
+
+```
+vals_lst = transactions_df.iloc[-1].values.tolist() # a list of the values of the new row that needs to be inserted
+self.databaseObj.conn.cursor().executemany(f"INSERT INTO Transactions VALUES (?)", [ele for ele in vals_lst])
+```
 
 
 # Environment
 ## How to set up a virtual environment on Windows:
 ```
-  cd .\LibraryManagementSystem\
-  python -m venv .venv (To create virtual environment)
-  .venv\Scripts\activate (Activate virtual environment)
-  pip install -r requirements.txt (Install all required packages)
+cd .\LibraryManagementSystem\
+python -m venv .venv (To create virtual environment)
+.venv\Scripts\activate (Activate virtual environment)
+pip install -r requirements.txt (Install all required packages)
 ```
 
 ## In case your Windows OS is not well set-up, do the following:

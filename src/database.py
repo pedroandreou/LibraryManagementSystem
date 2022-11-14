@@ -54,8 +54,6 @@ class Database:
                     if get_first_item == True:
                         # convert list of tuples into a list of strings
                         results = [item[0] for item in c.fetchall()]
-
-                        return results
                     else:
                         # convert list of tuples into a list of strings
                         results = [item for item in c.fetchall()]
@@ -187,6 +185,8 @@ class Database:
         initialDate,
         endRecordDate,
         isActive,
+        gui_flag=False,
+        bookId=None,
     ):
         """This function is inserting data to the new fields of the Transactions table.
 
@@ -202,6 +202,10 @@ class Database:
             endRecordDate (date): A date showing when the transaction has been closed when the new transaction will be made
             isActive (bool): A boolean value indicating whether the transaction is the latest one or not
         """
+
+        if gui_flag == True:
+            df.loc[idx, "TransactionId"] = idx
+            df.loc[idx, "BookId"] = bookId
 
         df.loc[idx, "TransactionType"] = transactionTypeMsg
         df.loc[idx, "IsCheckedOut"] = isCheckedOutNum
@@ -238,7 +242,9 @@ class Database:
         # df.loc[idx, "EndRecordDate"] = datetime.strptime(endRecordDate, "%d/%m/%Y").strftime("%Y/%m/%d")
         df.loc[idx, "IsActive"] = isActive
 
-    def deactivateLastTransaction(self, final_df, row):
+    def deactivateLastTransaction(
+        self, final_df, bookId, get_df_of_same_bookIds_via_gui=False
+    ):
         """This function deactivates the previous transaction of the specific member id.
            In case it is the first transaction of the specific book's copy, then it won't do anything.
 
@@ -250,14 +256,17 @@ class Database:
             integer: The id of the last activated transaction
         """
 
-        # Get all transactions that are currently active of the same passing BookId
-        allTransactions_of_bookId_df = final_df[
-            final_df["BookId"] == row.loc["BookId"]
-        ].dropna(axis=0, subset=["IsActive"])
+        # Get all transactions of the same passing BookId
+        allTransactions_of_bookId_df = final_df[final_df["BookId"] == bookId].dropna(
+            axis=0, subset=["IsActive"]
+        )
 
         last_activatedTransactionId = None
         # Check that there is an older transaction for the specific book id
         if len(allTransactions_of_bookId_df) >= 1:
+            if get_df_of_same_bookIds_via_gui == True:
+                return allTransactions_of_bookId_df.iloc[-1]
+
             # Get last transaction id that belong to the book id
             last_activatedTransactionId = allTransactions_of_bookId_df.iloc[-1][
                 "TransactionId"
@@ -268,7 +277,9 @@ class Database:
 
         return last_activatedTransactionId
 
-    def findLastMemberId_and_deactivateLastTransaction(self, initial_df, final_df, row):
+    def findLastMemberId_and_deactivateLastTransaction(
+        self, initial_df, final_df, bookId, memberId, columnOfmemberId="MemberId"
+    ):
         """This function finds the member id of the previous transaction and deactivates last transaction by calling the deactivateLastTransaction function.
 
            It is called when either:
@@ -286,35 +297,43 @@ class Database:
 
         Args:
             initial_df (pandas.core.frame.DataFrame): The dataframe that will go through
-            final_df (pandas.core.frame.DataFrame): The new dataframe that will add the new fields
+            final_df (pandas.core.frame.DataFrame): The new dataframe that will have the new fields added to it
             row (pandas.core.series.Series): The current transaction
 
         Returns:
             integer: The id of the member that was part of the last activated transaction
         """
 
-        last_activatedTransactionId = self.deactivateLastTransaction(final_df, row)
+        last_activatedTransactionId = self.deactivateLastTransaction(final_df, bookId)
 
-        last_lastMemberId = None
+        last_memberId = None
         if last_activatedTransactionId is not None:
+
             if (
                 final_df.loc[last_activatedTransactionId - 1, "TransactionType"]
                 == "Checkout"
-                or final_df.loc[last_activatedTransactionId - 1, "TransactionType"]
+            ):
+                # Get the last member that checked out
+                last_memberId = initial_df.loc[
+                    last_activatedTransactionId - 1, columnOfmemberId
+                ]
+
+            elif (
+                final_df.loc[last_activatedTransactionId - 1, "TransactionType"]
                 == "Reserve"
             ):
                 # Get the last member that checked out
-                last_lastMemberId = initial_df.loc[
-                    last_activatedTransactionId - 1, "MemberId"
+                last_memberId = initial_df.loc[
+                    last_activatedTransactionId - 1, columnOfmemberId
                 ]
 
         # If there was no previous transaction, assign the same current member id
-        if last_lastMemberId is None:
-            last_lastMemberId = row.loc["MemberId"]
+        if last_memberId is None:
+            last_memberId = memberId
 
         # Using casting fixed the problem of automatically allocating 8 bytes of space to the CheckOut Member Id field
         # which needed to be downloaded from each cell's file to see the actual value
-        return int(last_lastMemberId)
+        return int(last_memberId)
 
     def normalize_data(self, bookInfo_df, loanReservationHistory_df):
 
@@ -423,7 +442,7 @@ class Database:
                 if pd.isnull(row.loc["CheckoutDate"]) and pd.isnull(
                     row.loc["ReturnDate"]
                 ):
-                    self.deactivateLastTransaction(transactions_df, row)
+                    self.deactivateLastTransaction(transactions_df, row.loc["BookId"])
 
                     self.fill_new_fields(
                         transactions_df,
@@ -439,6 +458,7 @@ class Database:
                     )
                 # Reserve, Checkout at the same time
                 elif pd.isnull(row.loc["CheckoutDate"]) == False:
+
                     # Reserve, Checkout at the same time
                     if pd.isnull(row.loc["ReturnDate"]):
                         reserve_date = datetime.strptime(
@@ -452,7 +472,10 @@ class Database:
                         if reserve_date > checkout_date:
                             last_checkedOutMemberId = (
                                 self.findLastMemberId_and_deactivateLastTransaction(
-                                    loanReservationHistory_df, transactions_df, row
+                                    loanReservationHistory_df,
+                                    transactions_df,
+                                    row.loc["BookId"],
+                                    row.loc["MemberId"],
                                 )
                             )
 
@@ -472,7 +495,10 @@ class Database:
                         else:
                             last_ReservedMemberId = (
                                 self.findLastMemberId_and_deactivateLastTransaction(
-                                    loanReservationHistory_df, transactions_df, row
+                                    loanReservationHistory_df,
+                                    transactions_df,
+                                    row.loc["BookId"],
+                                    row.loc["MemberId"],
                                 )
                             )
 
@@ -492,7 +518,10 @@ class Database:
                     else:
                         last_checkedOutMemberId = (
                             self.findLastMemberId_and_deactivateLastTransaction(
-                                loanReservationHistory_df, transactions_df, row
+                                loanReservationHistory_df,
+                                transactions_df,
+                                row.loc["BookId"],
+                                row.loc["MemberId"],
                             )
                         )
 
@@ -535,7 +564,7 @@ class Database:
                 pd.isnull(row.loc["ReservationDate"])
                 and pd.isnull(row.loc["CheckoutDate"]) == False
             ):
-                self.deactivateLastTransaction(transactions_df, row)
+                self.deactivateLastTransaction(transactions_df, row.loc["BookId"])
 
                 # Just Checkout
                 if pd.isnull(row.loc["ReturnDate"]):

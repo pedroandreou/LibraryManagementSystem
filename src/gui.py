@@ -13,11 +13,12 @@ from tkinter import (
 from tkinter.ttk import Combobox, Treeview, Notebook, Style
 from ttkwidgets.autocomplete import AutocompleteEntry
 from PIL import Image, ImageTk
+import pandas as pd
 from bookSearch import SearchBookTitle
 from bookSelect import BookRecommendationSystem
-from bookReserve import reserve_book
-from bookCheckout import checkout_book
-from bookReturn import return_book
+from bookReserve import ReserveBook
+from bookCheckout import CheckoutBook
+from bookReturn import ReturnBook
 
 
 class App:
@@ -204,8 +205,15 @@ class App:
         self, curr_page, recommendation_tab=None
     ):
         def call_appropriate_rcr_action():
-            bookID = self.book_id.get()
-            memberID = self.member_id.get()
+            try:
+                bookID = self.book_id.get()
+                memberID = self.member_id.get()
+            except AttributeError:
+                messagebox.showerror(
+                    "Error",
+                    "Press the Submit button on the top before pressing the bottom one",
+                )
+                return
 
             try:
                 bookID = int(bookID)
@@ -225,13 +233,16 @@ class App:
                 return
 
             action_submitted = self.rcr_dropdown.get()
+            transactions_df = pd.read_sql_query(
+                "SELECT * FROM Transactions;", self.conn
+            )
 
             if action_submitted == "Reserve Book":
-                reserve_book()
+                self.reserveBookObj.reserve_book(transactions_df, bookID, memberID)
             elif action_submitted == "Checkout Book":
-                checkout_book()
+                self.checkoutBookObj.checkout_book(transactions_df, bookID, memberID)
             else:
-                return_book()
+                self.returnBookObj.return_book(transactions_df, bookID, memberID)
 
         if curr_page == "search_book":
             return lambda: self.SearchBookTitleObject.find_books(
@@ -284,6 +295,10 @@ class App:
             height=40,
             width=220,
         )
+
+        self.reserveBookObj = ReserveBook(self.databaseObj)
+        self.checkoutBookObj = CheckoutBook(self.databaseObj)
+        self.returnBookObj = ReturnBook(self.databaseObj)
 
         # "db_schema" page should not have a submit button
         if curr_page != "db_schema_page":
