@@ -51,23 +51,7 @@ To complete this task, I need to make the following changes:
 - Add functionality that will check for expiration dates since I have already set expiration dates for people who reserve or checkout a book (reservation can last for 10 days while checkout for 30 days)
 - EndRecordDate of the transaction has been added to the Transactions table. I would add the new transaction's date as the EndRecordDate of the previous transaction. In other words, when a new transaction comes in, the previous transaction should close; have an end date. It's a simple task as how to add it is already implemented using the "fill_new_fields" method in the "database.py" file
 - Update the column header of "Num of submitted RCR action" of the Treeview in the Notebook tab in the recommendation page based on the submitted RCR action. For example, if Return is submitted, the column header of the Treeview should be "Num of Returns"; same applies for Reserve and Return actions
-- The transaction of Reserve/Checkout/Return in the "bookReserve.py" & "bookCheckout.py" & "bookReturn.py" files use the 'to_sql' method where I just append the last transaction to the table (just one row). However, for some reason it takes ages for just a row to be added to SQLite (it takes between 1 to 5 mins). Nevertheless, I am printing the row in the console for confirmation.
-
-I could also follow another way of implementing it, since I already have the row of the previous transaction ("last_activatedTransaction" variable), I could have just made an UPDATE query with a WHERE clause like the following:
-
-```
-UPDATE Transactions
-SET t.isActive = 0
-WHERE t.bookId = last_activatedTransaction.loc["bookId"] and t.isActive = 1
-GROUP BY t.bookId;
-```
-
-and I could have inserted the new transaction (last row of the dataframe) by doing something similar to the following:
-
-```
-vals_lst = transactions_df.iloc[-1].values.tolist() # a list of the values of the new row that needs to be inserted
-self.databaseObj.conn.cursor().executemany(f"INSERT INTO Transactions VALUES (?)", [ele for ele in vals_lst])
-```
+- The transaction of Reserve/Checkout/Return in the "bookReserve.py" & "bookCheckout.py" & "bookReturn.py" files use the 'to_sql' method where I just append the last transaction to the table (a dataframe of just one row). However, for some reason it takes ages for just one row to be added to SQLite (it takes around 5 mins). Nevertheless, I am printing the row in the console for confirmation.
 
 
 # Environment
@@ -121,6 +105,7 @@ sqlite3 library.db
 
 ## :whale: Docker
 #### How to run the Tkinter app in a Docker container on Linux:
+But before doing so, run the application just once on your Linux OS; so the DB can be created as the Docker container to get up will need to mount the DB. If the DB does not exist, it will lead to errors
 ```
 xhost +
 sudo apt-get install x11-xserver-utils (Haven't included it in the requirements.txt as pip cannot find a matching distribution for this package)
