@@ -18,6 +18,10 @@ Or even instead of having just one frame, I am having a single frame for each pa
 - Added an option for finding the most Reservations/Checkouts/Returns (a.k.a. RCR) in respect of the most available days of the book. In other words, I find all the copies of that particular book and sum all the available dates (the date that book copy was purchased till today's date) using the JULIANDAY function and then based on the RCR (one of the three actions that the user chose), I find which book has been more popular. See the "most_rcr_available_days" method in the "BookSelect.py" and "self.available_days_flag == True" in the "Treeview.py" file for a better understanding
 
 
+# Errors:
+For some reason, my notebook tab of showing the available days, which requires division using the operand '/' (self.data.sort(key=lambda elem: (elem[2] / elem[1]))) works fine on Linux but leads to errors on Windows. Nevertheless, no big deal. There are another three notebook tabs to play with if you are on Windows.
+
+
 # Notes:
 - If you want to check if the normalization happens, which would require changing some data values in the txt files, make sure the DB file is deleted
 before running the program again, as it won't load the changes. The reason is that I am checking if the DB exists, and in case it does,
