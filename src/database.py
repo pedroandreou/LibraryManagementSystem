@@ -187,6 +187,7 @@ class Database:
         isActive,
         gui_flag=False,
         bookId=None,
+        get_df=False,
     ):
         """This function is inserting data to the new fields of the Transactions table.
 
@@ -241,6 +242,10 @@ class Database:
         ).strftime("%Y/%m/%d")
         # df.loc[idx, "EndRecordDate"] = datetime.strptime(endRecordDate, "%d/%m/%Y").strftime("%Y/%m/%d")
         df.loc[idx, "IsActive"] = isActive
+
+        # RCR for gui
+        if get_df == True:
+            return df
 
     def deactivateLastTransaction(
         self, final_df, bookId, get_df_of_same_bookIds_via_gui=False
@@ -335,6 +340,41 @@ class Database:
         # which needed to be downloaded from each cell's file to see the actual value
         return int(last_memberId)
 
+    def create_empty_transactions_fact_table(self, df):
+        ### Create Transactions fact table ###
+        transactions_df = pd.DataFrame()
+        data = {
+            "TransactionId": df["TransactionId"],
+            "BookId": df["BookId"],
+            "TransactionType": np.nan,
+            "IsCheckedOut": np.nan,
+            "CheckedOutMemberId": np.nan,
+            "ReservedMemberId": np.nan,
+            "IsReserved": np.nan,
+            "TransactionTypeExpirationDate": np.nan,
+            "StartRecordDate": np.nan,
+            "EndRecordDate": np.nan,
+            "IsActive": np.nan,
+        }
+        transactions_df = pd.DataFrame(
+            data,
+            columns=[
+                "TransactionId",
+                "BookId",
+                "TransactionType",
+                "IsCheckedOut",
+                "CheckedOutMemberId",
+                "IsReserved",
+                "ReservedMemberId",
+                "TransactionTypeExpirationDate",
+                "StartRecordDate",
+                "EndRecordDate",
+                "IsActive",
+            ],
+        )
+
+        return transactions_df
+
     def normalize_data(self, bookInfo_df, loanReservationHistory_df):
 
         ### Create BookInventory fact table ###
@@ -404,35 +444,8 @@ class Database:
         )
 
         ### Create Transactions fact table ###
-        transactions_df = pd.DataFrame()
-        data = {
-            "TransactionId": loanReservationHistory_df["TransactionId"],
-            "BookId": loanReservationHistory_df["BookId"],
-            "TransactionType": np.nan,
-            "IsCheckedOut": np.nan,
-            "CheckedOutMemberId": np.nan,
-            "ReservedMemberId": np.nan,
-            "IsReserved": np.nan,
-            "TransactionTypeExpirationDate": np.nan,
-            "StartRecordDate": np.nan,
-            "EndRecordDate": np.nan,
-            "IsActive": np.nan,
-        }
-        transactions_df = pd.DataFrame(
-            data,
-            columns=[
-                "TransactionId",
-                "BookId",
-                "TransactionType",
-                "IsCheckedOut",
-                "CheckedOutMemberId",
-                "IsReserved",
-                "ReservedMemberId",
-                "TransactionTypeExpirationDate",
-                "StartRecordDate",
-                "EndRecordDate",
-                "IsActive",
-            ],
+        transactions_df = self.create_empty_transactions_fact_table(
+            loanReservationHistory_df
         )
 
         # Create values for new fields of Transactions table

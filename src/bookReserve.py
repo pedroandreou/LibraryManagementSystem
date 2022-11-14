@@ -1,6 +1,13 @@
+import pandas as pd
 import numpy as np
 from tkinter import messagebox
 from datetime import datetime
+
+
+def get_transactions_table_data(conn):
+    df = pd.read_sql_query("SELECT * FROM Transactions;", conn)
+
+    return df
 
 
 class ReserveBook:
@@ -8,12 +15,20 @@ class ReserveBook:
         self.databaseObj = databaseObj
         self.conn = self.databaseObj.conn
 
-    def reserve_book(self, transactions_df, bookID, memberID):
+        self.transactions_df = get_transactions_table_data(self.conn)
+
+        self.new_df = self.databaseObj.create_empty_transactions_fact_table(
+            self.transactions_df
+        )
+
+    def reserve_book(self, bookID, memberID):
+
+        self.transactions_df = get_transactions_table_data(self.conn)
 
         # Do not deactivate for now (that's why I introduced new boolean get_df_of_same_bookIds_via_gui),
         # just try to get the last activated transaction to make sure there is a previous transaction for the specific BookId
         last_activatedTransaction = self.databaseObj.deactivateLastTransaction(
-            transactions_df, bookID, get_df_of_same_bookIds_via_gui=True
+            self.transactions_df, bookID, get_df_of_same_bookIds_via_gui=True
         )
 
         # No previous transaction for the specific BookId or the previous transaction was Return
@@ -27,9 +42,14 @@ class ReserveBook:
                 f"The book with an ID of {bookID} has successfully been reserved to {memberID} ID member",
             )
 
-            self.databaseObj.fill_new_fields(
-                transactions_df,
-                transactions_df.shape[0] + 1,  # New index
+            # deactivate last transaction
+            self.databaseObj.deactivateLastTransaction(
+                self.transactions_df, bookID, get_df_of_same_bookIds_via_gui=False
+            )
+
+            self.new_df = self.databaseObj.fill_new_fields(
+                self.transactions_df,
+                self.transactions_df.shape[0] + 1,  # New index
                 transactionTypeMsg="Reserve",
                 isCheckedOutNum=0,
                 checkedOutMemberId=np.nan,
@@ -40,11 +60,15 @@ class ReserveBook:
                 isActive=1,
                 gui_flag=True,
                 bookId=bookID,
+                get_df=True,
             )
 
-            transactions_df.to_sql(
-                "Transactions", self.conn, if_exists="replace", index=False
+            self.new_df.tail(1).to_sql(
+                "Transactions", self.conn, if_exists="append", index=False
             )
+
+            # Print it to the console for confirming that it works
+            print(self.new_df.tail(1))
 
         # Since a previous transaction exists, check if its transactionType was Reserve
         elif last_activatedTransaction["TransactionType"] == "Reserve":
@@ -71,19 +95,24 @@ class ReserveBook:
             {int(last_activatedTransaction.loc['CheckedOutMemberId'])} ID member""",
             )
 
+            # deactivate last transaction
+            self.databaseObj.deactivateLastTransaction(
+                self.transactions_df, bookID, get_df_of_same_bookIds_via_gui=False
+            )
+
             last_checkedOutMemberId = (
                 self.databaseObj.findLastMemberId_and_deactivateLastTransaction(
-                    transactions_df,
-                    transactions_df,
+                    self.transactions_df,
+                    self.new_df,
                     bookID,
                     memberID,
-                    columnOfmemberId="ReservedMemberId",
+                    columnOfmemberId="CheckedOutMemberId",
                 )
             )
 
-            self.databaseObj.fill_new_fields(
-                transactions_df,
-                transactions_df.shape[0] + 1,  # New index
+            self.new_df = self.databaseObj.fill_new_fields(
+                self.transactions_df,
+                self.transactions_df.shape[0] + 1,  # New index
                 transactionTypeMsg="Reserve",
                 isCheckedOutNum=1,
                 checkedOutMemberId=last_checkedOutMemberId,
@@ -94,8 +123,12 @@ class ReserveBook:
                 isActive=1,
                 gui_flag=True,
                 bookId=bookID,
+                get_df=True,
             )
 
-            transactions_df.to_sql(
-                "Transactions", self.conn, if_exists="replace", index=False
+            self.new_df.tail(1).to_sql(
+                "Transactions", self.conn, if_exists="append", index=False
             )
+
+            # Print it to the console for confirming that it works
+            print(self.new_df.tail(1))

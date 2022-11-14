@@ -233,16 +233,13 @@ class App:
                 return
 
             action_submitted = self.rcr_dropdown.get()
-            transactions_df = pd.read_sql_query(
-                "SELECT * FROM Transactions;", self.conn
-            )
 
             if action_submitted == "Reserve Book":
-                self.reserveBookObj.reserve_book(transactions_df, bookID, memberID)
+                self.reserveBookObj.reserve_book(bookID, memberID)
             elif action_submitted == "Checkout Book":
-                self.checkoutBookObj.checkout_book(transactions_df, bookID, memberID)
+                self.checkoutBookObj.checkout_book(bookID, memberID)
             else:
-                self.returnBookObj.return_book(transactions_df, bookID, memberID)
+                self.returnBookObj.return_book(bookID, memberID)
 
         if curr_page == "search_book":
             return lambda: self.SearchBookTitleObject.find_books(

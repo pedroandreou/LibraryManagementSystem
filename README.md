@@ -51,9 +51,9 @@ To complete this task, I need to make the following changes:
 - Add functionality that will check for expiration dates since I have already set expiration dates for people who reserve or checkout a book (reservation can last for 10 days while checkout for 30 days)
 - EndRecordDate of the transaction has been added to the Transactions table. I would add the new transaction's date as the EndRecordDate of the previous transaction. In other words, when a new transaction comes in, the previous transaction should close; have an end date. It's a simple task as how to add it is already implemented using the "fill_new_fields" method in the "database.py" file
 - Update the column header of "Num of submitted RCR action" of the Treeview in the Notebook tab in the recommendation page based on the submitted RCR action. For example, if Return is submitted, the column header of the Treeview should be "Num of Returns"; same applies for Reserve and Return actions
-- The transaction of Reserve/Checkout/Return in the "bookReserve.py" & "bookCheckout.py" & "bookReturn.py" files use the 'to_sql' method which replaces the whole SQLite table (with a dataframe) for just updating/deactivating the previous transaction and inserting the new transaction. In other words, only two rows are edited.
-This is a very terrible idea though as it takes some time to replace it
-Ideally, since I already have the row of the previous transaction ("last_activatedTransaction" variable), I could have just made an UPDATE query with a WHERE clause like the following:
+- The transaction of Reserve/Checkout/Return in the "bookReserve.py" & "bookCheckout.py" & "bookReturn.py" files use the 'to_sql' method where I just append the last transaction to the table (just one row). However, for some reason it takes ages for just a row to be added to SQLite (it takes between 1 to 5 mins). Nevertheless, I am printing the row in the console for confirmation.
+
+I could also follow another way of implementing it, since I already have the row of the previous transaction ("last_activatedTransaction" variable), I could have just made an UPDATE query with a WHERE clause like the following:
 
 ```
 UPDATE Transactions

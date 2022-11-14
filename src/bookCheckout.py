@@ -1,6 +1,13 @@
 from tkinter import messagebox
+import pandas as pd
 import numpy as np
 from datetime import datetime
+
+
+def get_transactions_table_data(conn):
+    df = pd.read_sql_query("SELECT * FROM Transactions;", conn)
+
+    return df
 
 
 class CheckoutBook:
@@ -8,12 +15,20 @@ class CheckoutBook:
         self.databaseObj = databaseObj
         self.conn = self.databaseObj.conn
 
-    def checkout_book(self, transactions_df, bookID, memberID):
+        self.transactions_df = get_transactions_table_data(self.conn)
+
+        self.new_df = self.databaseObj.create_empty_transactions_fact_table(
+            self.transactions_df
+        )
+
+    def checkout_book(self, bookID, memberID):
+
+        self.transactions_df = get_transactions_table_data(self.conn)
 
         # Do not deactivate for now (that's why I introduced new boolean get_df_of_same_bookIds_via_gui),
         # just try to get the last activated transaction to make sure there is a previous transaction for the specific BookId
         last_activatedTransaction = self.databaseObj.deactivateLastTransaction(
-            transactions_df, bookID, get_df_of_same_bookIds_via_gui=True
+            self.transactions_df, bookID, get_df_of_same_bookIds_via_gui=True
         )
 
         # No previous transaction for the specific BookId or the previous transaction was Return
@@ -27,9 +42,14 @@ class CheckoutBook:
                 f"The book with an ID of {bookID} has successfully been checked out to {memberID} ID member",
             )
 
-            self.databaseObj.fill_new_fields(
-                transactions_df,
-                transactions_df.shape[0] + 1,
+            # deactivate last transaction
+            self.databaseObj.deactivateLastTransaction(
+                self.transactions_df, bookID, get_df_of_same_bookIds_via_gui=False
+            )
+
+            self.new_df = self.databaseObj.fill_new_fields(
+                self.transactions_df,
+                self.transactions_df.shape[0] + 1,
                 transactionTypeMsg="Checkout",
                 isCheckedOutNum=1,
                 checkedOutMemberId=memberID,
@@ -40,11 +60,15 @@ class CheckoutBook:
                 isActive=1,
                 gui_flag=True,
                 bookId=bookID,
+                get_df=True,
             )
 
-            transactions_df.to_sql(
-                "Transactions", self.conn, if_exists="replace", index=False
+            self.new_df.tail(1).to_sql(
+                "Transactions", self.conn, if_exists="append", index=False
             )
+
+            # Print it to the console for confirming that it works
+            print(self.new_df.tail(1))
 
         elif last_activatedTransaction["TransactionType"] == "Checkout":
 
@@ -71,19 +95,24 @@ class CheckoutBook:
                 since the member was already reserving it""",
                 )
 
+                # deactivate last transaction
+                self.databaseObj.deactivateLastTransaction(
+                    self.transactions_df, bookID, get_df_of_same_bookIds_via_gui=False
+                )
+
                 last_ReservedMemberId = (
                     self.databaseObj.findLastMemberId_and_deactivateLastTransaction(
-                        transactions_df,
-                        transactions_df,
+                        self.transactions_df,
+                        self.new_df,
                         bookID,
                         memberID,
-                        columnOfmemberId="CheckedOutMemberId",
+                        columnOfmemberId="ReservedMemberId",
                     )
                 )
 
-                self.databaseObj.fill_new_fields(
-                    transactions_df,
-                    transactions_df.shape[0] + 1,
+                self.new_df = self.databaseObj.fill_new_fields(
+                    self.transactions_df,
+                    self.transactions_df.shape[0] + 1,
                     transactionTypeMsg="Checkout",
                     isCheckedOutNum=1,
                     checkedOutMemberId=memberID,
@@ -94,11 +123,15 @@ class CheckoutBook:
                     isActive=1,
                     gui_flag=True,
                     bookId=bookID,
+                    get_df=True,
                 )
 
-                transactions_df.to_sql(
-                    "Transactions", self.conn, if_exists="replace", index=False
+                self.new_df.tail(1).to_sql(
+                    "Transactions", self.conn, if_exists="append", index=False
                 )
+
+                # Print it to the console for confirming that it works
+                print(self.new_df.tail(1))
 
             else:
                 messagebox.showerror(
