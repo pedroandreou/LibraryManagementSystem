@@ -8,13 +8,13 @@ def main():
     repo_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     data_dir_path = os.path.join(repo_path, "data")
 
-    ## database ###
+    ## Database ###
     db_path = f"{data_dir_path}/library.db"
     db_exists_flag = os.path.isfile(db_path)
 
     databaseObj = d.Database(db_path)
 
-    # check if db already exists => do not load files or normalize data => already done
+    # Check if db already exists, then do not load files or normalize data
     if not db_exists_flag:
         create_book_info = [
             "Book_Info",
@@ -36,28 +36,28 @@ def main():
             "FOREIGN KEY (BookId) REFERENCES Book_Info(BookId)",
         ]
 
-        # create two initial tables
+        # Create two initial tables
         create_tables = [create_book_info, create_loan_reservation_history]
         for table in create_tables:
             databaseObj.create_table(table)
 
-        # fill initial tables with data from the two txt files
+        # Fill initial tables with data from the two txt files
         book_info_df = None
         loan_res_hist_df = None
         table_names = [create_book_info[0], create_loan_reservation_history[0]]
         for table_name in table_names:
             file_path = f"{data_dir_path}/data_files/{table_name}.txt"
 
-            # fill each initial table with data
+            # Fill each initial table with data
             df = databaseObj.init_db(table_name, file_path)
 
-            # store the created df from the txt file to a variable
+            # Store the created df from the txt file to a variable
             if table_name == create_book_info[0]:
                 book_info_df = df
             else:
                 loan_res_hist_df = df
 
-        # create tables for adding normalized data
+        # Create tables for adding normalized data
         create_book_inventory = [
             "BookInventory",
             "BookId PRIMARY KEY",
@@ -118,28 +118,28 @@ def main():
         for table in create_tables:
             databaseObj.create_table(table)
 
-        # normalize existing data
+        # Normalize existing data
         databaseObj.normalize_data(book_info_df, loan_res_hist_df)
 
-        # drop the initial tables
+        # Drop the initial tables
         databaseObj.drop_table("Book_Info")
         databaseObj.drop_table("Loan_Reservation_History")
     else:
         print("DB already exists; no need for creating our tables from scratch again!")
 
-    # create a list of all the book titles that will be used for autocompletion
+    # Create a list of all the book titles that will be used for autocompletion
     book_titles_lst = databaseObj.execute_query(
         query="SELECT BookTitleRef FROM BookTitle;",
         get_results=True,
         get_first_item=True,
     )
 
-    # create a list of all the book ids to check if the user has provided one that exists
+    # Create a list of all the book ids to check if the user has provided one that exists
     book_ids_lst = databaseObj.execute_query(
         query="SELECT BookId FROM BookInventory;", get_results=True, get_first_item=True
     )
 
-    ## gui ###
+    ## GUI ###
     root = Tk()
     gui.App(root, databaseObj, data_dir_path, book_titles_lst, book_ids_lst)
     root.mainloop()

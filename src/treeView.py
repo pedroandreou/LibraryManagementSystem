@@ -8,7 +8,6 @@ class TreeViewClass:
         available_days_flag=False,
     ):
         self.databaseObj = databaseObj
-        self.conn = self.databaseObj.conn
         self.tree = tree
         self.query = query
         self.book_search_flag = book_search_flag
@@ -19,7 +18,7 @@ class TreeViewClass:
         self.add_data_to_treeview()
 
     def clear_Treeview(self):
-        # clear Treeview
+        # Clear Treeview
         for i in self.tree.get_children():
             self.tree.delete(i)
 
@@ -31,16 +30,16 @@ class TreeViewClass:
     def add_data_to_treeview(self):
 
         if self.book_search_flag == True:
-            # sort tuples based on the BookId
+            # Sort tuples based on the BookId
             self.data.sort(key=lambda elem: elem[0])
         elif self.available_days_flag == True:
-            # sort tuples by diving the number of checkouts from the available days
+            # Sort tuples by diving the number of checkouts from the available days
             self.data.sort(key=lambda elem: (elem[2] / elem[1]))
         else:
-            # get the length of the first tuple from the list
+            # Get the length of the first tuple from the list
             tuple_len = len(self.data[0])
 
-            # sort tuple based on the numbers of Reserve/Checkout/Return in a descending order
+            # Sort tuple based on the numbers of Reserve/Checkout/Return in a descending order
             self.data.sort(key=lambda elem: elem[tuple_len - 1], reverse=True)
 
         for row_tuple in self.data:
