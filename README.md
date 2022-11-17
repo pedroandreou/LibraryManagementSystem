@@ -1,4 +1,61 @@
-# Outcomes:
+## 📰 Description
+- Wrote a library management system for a librarian 
+- The librarian can:
+  * reserve books
+  * check available books out
+  * return any books they currently have 
+- Details of all books in the library are stored in a local SQLite database
+- For each book the following information is stored: 
+  * title
+  * author
+  * genre
+  * purchase price 
+  * purchase date
+  * a unique ID number which can be used to identify different copies of the same book 
+
+
+## :volcano: GUI 
+<table>
+  <tr>
+    <td></td>
+    <td align="center">MENU page</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+  <td></td>
+      <td><img src="screenshots/main_page.png"></td>
+  <td></td>
+  <td></td>
+  </tr>
+
+  <tr>
+    <td align="center">SEARCH BOOK page</td>
+    <td align="center">RCR page</td>
+    <td align="center">REC page</td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/search_book_page.png"></td>
+    <td><img src="screenshots/rcr_page.png"></td>
+    <td><img src="screenshots/rec_page.png"></td>
+  </tr>
+
+  <tr>
+    <td></td>
+    <td align="center">DB SCHEMA page</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><img src="screenshots/db_schema_page.png"></td>
+    <td></td>
+    <td></td>
+  </tr>
+ </table>
+
+
+## Outcomes
 - The GUI's window is dynamic; it gets increased or decreased in size automatically
 - Loaded text files using the pandas 'to_sql' method
 - Followed STAR schema
@@ -18,11 +75,11 @@ Or even instead of having just one frame, I am having a single frame for each pa
 - Added an option for finding the most Reservations/Checkouts/Returns (a.k.a. RCR) in respect of the most available days of the book. In other words, I find all the copies of that particular book and sum all the available dates (the date that book copy was purchased till today's date) using the JULIANDAY function and then based on the RCR (one of the three actions that the user chose), I find which book has been more popular. See the "most_rcr_available_days" method in the "BookSelect.py" and "self.available_days_flag == True" in the "Treeview.py" file for a better understanding
 
 
-# Errors:
+## Errors
 For some reason, my notebook tab of showing the available days, which requires division using the operand '/' (self.data.sort(key=lambda elem: (elem[2] / elem[1]))) works fine on Linux but leads to errors on Windows. Nevertheless, no big deal. There are another three notebook tabs to play with if you are on Windows.
 
 
-# Notes:
+## Notes
 - If you want to check if the normalization happens, which would require changing some data values in the txt files, make sure the DB file is deleted
 before running the program again, as it won't load the changes. The reason is that I am checking if the DB exists, and in case it does,
 then I skip the loading part since it only needs to be loaded once. In case of loading the DB every single time the program runs, then the data would always be overwritten, and the user's changes would always be lost after the end of a session
@@ -30,7 +87,7 @@ then I skip the loading part since it only needs to be loaded once. In case of l
 - On my recommendation page, it can be noticed that the TransactionType of "Return" books happened much more than the "Checkout" TransactionType. That's because of the initial data in the txt files. However, the whole procedure is correct, I just tried to make the initial data as challenging as possible so my program could meet all conditions. The explanation behind it will be stated in the "The logic behind Transactions Table" section below
 
 
-# The logic behind the Transactions Table:
+## The logic behind the Transactions Table
 The below logic applies to the load of the files since the procedure of Reserving, Checking Out, and Returning via the GUI is much simpler as the user decides which TransactionType wants to move forward with. On the other hand, in the case of the txt files, I had to understand which TransactionType was, based on the below conditions:
 
 1. When Reserve, Checkout and Return happen at the same time, then it's considered as a Checkout, and both ReservedMemberId and CheckedOutId are the given ID.
@@ -45,7 +102,7 @@ The below logic applies to the load of the files since the procedure of Reservin
 5. In case it was only Checkout, then the TransactionType is Checkout and CheckoutMemberId is the one given
 
 
-# Future Work:
+## Future Work
 - Add a vertical scroll bar to the TreeView widget for better UX, but nevertheless, the user can still scroll without one
 - There is only one thing I would change in my DB Schema. The book copies are currently all in the BookInventory table, whereas the BookCopies table adds another 2 columns to the BookInventory. That's silly, and I should have noticed it earlier. In reality, BookInventory should have only had one book from all the series of copies, and all the copies should have been in the BookCopies table
 To complete this task, I need to make the following changes:
@@ -58,8 +115,8 @@ To complete this task, I need to make the following changes:
 - The transaction of Reserve/Checkout/Return in the "bookReserve.py" & "bookCheckout.py" & "bookReturn.py" files use the 'to_sql' method where I just append the last transaction to the table (a dataframe of just one row). However, for some reason it takes ages for just one row to be added to SQLite (it takes around 5 mins). Nevertheless, I am printing the row in the console for confirmation.
 
 
-# Environment
-## How to set up a virtual environment on Windows:
+## Environment
+### How to set up a virtual environment on Windows:
 ```
 cd .\LibraryManagementSystem\
 python -m venv .venv (To create virtual environment)
@@ -67,7 +124,7 @@ python -m venv .venv (To create virtual environment)
 pip install -r requirements.txt (Install all required packages)
 ```
 
-## In case your Windows OS is not well set-up, do the following:
+### In case your Windows OS is not well set-up, do the following:
 Add the following environment variables in the Path of *User variables for user*:
 ```
 C:\Users\user\AppData\Local\Programs\Python\Python<yourpythonversion>\Scripts  (e.g. C:\Users\user\AppData\Local\Programs\Python\Python39\Scripts)
@@ -81,7 +138,7 @@ Add the following environment variables in the *System Variables*:
 C:\Users\user\AppData\Local\Programs\Python\Python<yourpythonversion>  (e.g. C:\Users\user\AppData\Local\Programs\Python\Python39)
 ```
 
-## How to set up a virtual environment on Linux:
+### How to set up a virtual environment on Linux:
 You should create a virtualenv with the required dependencies by running
 ```
 make virtualenv
@@ -99,7 +156,7 @@ make update-requirements-txt
 ```
 
 
-## How to play around with my db on Linux:
+### How to play around with my db on Linux:
 ```
 sudo apt install sqlite3
 ./LibraryManagementSystem/data
@@ -108,7 +165,7 @@ sqlite3 library.db
 
 
 ## :whale: Docker
-#### How to run the Tkinter app in a Docker container on Linux:
+### How to run the Tkinter app in a Docker container on Linux:
 But before doing so, run the application just once on your Linux OS; so the DB can be created as the Docker container to get up will need to mount the DB. If the DB does not exist, it will lead to errors
 ```
 xhost +
