@@ -1,3 +1,60 @@
+# 📰 Description
+- Wrote a library management system for a librarian 
+- The librarian can:
+  * reserve books
+  * check available books out
+  * return any books they currently have 
+- Details of all books in the library are stored in a local SQLite database
+- For each book the following information is stored: 
+  * title
+  * author
+  * genre
+  * purchase price 
+  * purchase date
+  * a unique ID number which can be used to identify different copies of the same book 
+
+
+# :volcano: GUI 
+<table>
+  <tr>
+    <td></td>
+    <td>MENU page</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+  <td></td>
+      <td><img src="screenshots/main_page.png" width=45%></td>
+  <td></td>
+  <td></td>
+  </tr>
+
+  <tr>
+    <td>SEARCH BOOK page</td>
+    <td>RCR page</td>
+    <td>REC page</td>
+  </tr>
+  <tr>
+    <td><img src="screenshots/search_book_page.png" width=45%></td>
+    <td><img src="screenshots/rcr_page.png" width=45%></td>
+    <td><img src="screenshots/rec_page.png" width=45%></td>
+  </tr>
+
+  <tr>
+    <td></td>
+    <td>DB SCHEMA page</td>
+    <td></td>
+    <td></td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><img src="screenshots/db_schema_page.png" width=45%></td>
+    <td></td>
+    <td></td>
+  </tr>
+ </table>
+
+
 # Outcomes:
 - The GUI's window is dynamic; it gets increased or decreased in size automatically
 - Loaded text files using the pandas 'to_sql' method
