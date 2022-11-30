@@ -1,14 +1,14 @@
 pipeline{
     agent any
     stages {
-        stage('version') {
+        stage('Version') {
             steps {
                 sh 'python3 --version'
             }
         }
-        stage('testing') {
+        stage('Build') {
             steps {
-                sh 'xhost + && sudo apt-get install x11-xserver-utils && virtualenv && sudo venv && . venv/bin/activate && pip install -r requirements.txt && python src/menu.py'
+                sh 'export DISPLAY='IP:0.0' && xhost + && sudo apt-get install x11-xserver-utils && virtualenv && sudo venv && . venv/bin/activate && pip install -r requirements.txt && python src/menu.py'
             }
         }
     }
