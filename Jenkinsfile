@@ -8,7 +8,7 @@ pipeline{
         }
         stage('testing') {
             steps {
-                sh 'python src/menu.py'
+                sh 'virtualenv venv && . venv/bin/activate && pip install -r requirements.txt && python src/menu.py'
             }
         }
     }
