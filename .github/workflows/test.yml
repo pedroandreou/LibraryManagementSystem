@@ -1,0 +1,23 @@
+
+name: Run tests # Name of the workflow
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  Run-tests:
+    runs-on: ubuntu-latest # The operating system this job should run on
+    steps:
+      - uses: actions/checkout@v2 # The action that checked out my repository to the computer that runs the action
+      - uses: actions/setup-python@v2 # The action that installed and set up python on that computer
+        with:
+          python-version: "3.8"
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Run tests
+        run: pytest
