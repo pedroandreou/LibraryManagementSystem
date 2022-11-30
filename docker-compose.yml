@@ -12,3 +12,13 @@ services:
       DISPLAY: unix$DISPLAY # Pass the display
     ports:
       - '8080:8080'
+  jenkins:
+    container_name: jenkins
+    build: "jenkins/"
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_OPTS:-Djava.awt.headless=true
+    volumes:
+      - /var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
