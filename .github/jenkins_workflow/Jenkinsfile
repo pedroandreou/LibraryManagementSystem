@@ -8,7 +8,7 @@ pipeline{
         }
         stage('testing') {
             steps {
-                sh 'virtualenv venv && . venv/bin/activate && pip install -r requirements.txt && python src/menu.py'
+                sh 'xhost + && sudo apt-get install x11-xserver-utils && virtualenv && sudo venv && . venv/bin/activate && pip install -r requirements.txt && python src/menu.py'
             }
         }
     }
