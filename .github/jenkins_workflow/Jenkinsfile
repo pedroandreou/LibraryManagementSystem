@@ -1,20 +1,39 @@
-pipeline{
-    agent any
-    stages {
-        stage('Version') {
-            steps {
-                sh 'python3 --version'
-            }
-        }
-        stage('Display IP') {
-            steps {
-                sh 'echo $DISPLAY'
-            }
-        }
-        stage('Build') {
-            steps {
-                sh 'export DISPLAY=$DISPLAY && xhost + && sudo apt-get install x11-xserver-utils && virtualenv && sudo venv && . venv/bin/activate && pip install -r requirements.txt && python src/menu.py'
-            }
-        }
-    }
+// pipeline{
+//     agent any
+//     stages {
+//         stage('Version') {
+//             steps {
+//                 sh 'python3 --version'
+//             }
+//         }
+//         stage('Display IP') {
+//             steps {
+//                 sh 'echo $DISPLAY'
+//             }
+//         }
+//         stage('Build') {
+//             steps {
+//                 sh 'export DISPLAY=$DISPLAY && xhost + && sudo apt-get install x11-xserver-utils && virtualenv && sudo venv && . venv/bin/activate && pip install -r requirements.txt && python src/menu.py'
+//             }
+//         }
+//     }
+// }
+
+pipeline {
+
+   agent any
+
+   stages {
+       stage('docker-compose') {
+           steps {
+              sh "docker-compose build"
+              sh "docker-compose up -d"
+           }
+       }
+   }
+   post {
+      always {
+         sh "docker-compose down || true"
+      }
+   }
 }
